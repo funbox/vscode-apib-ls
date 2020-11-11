@@ -1,0 +1,48 @@
+{
+  "name": "@funbox/vscode-apib-ls",
+  "description": "API Blueprint language server",
+  "version": "1.0.0",
+  "engines": {
+    "vscode": "^1.43.0"
+  },
+  "activationEvents": [
+    "onLanguage:plaintext"
+  ],
+  "main": "./client/extension",
+  "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "API Blueprint configuration",
+      "properties": {
+        "apibLanguageServer.trace.server": {
+          "scope": "window",
+          "type": "string",
+          "enum": [
+            "off",
+            "messages",
+            "verbose"
+          ],
+          "default": "off",
+          "description": "Traces the communication between VS Code and the language server."
+        }
+      }
+    },
+    "languages": [{
+      "id": "apib",
+      "extensions": [ ".apib" ],
+      "aliases": [ "APIB", "Blueprint" ]
+  }]
+  },
+  "scripts": {
+    "postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint --cache -c .eslintrc.js --ext .js ./"
+  },
+  "devDependencies": {
+    "@funboxteam/eslint-config": "5.1.0",
+    "eslint": "5.16.0",
+    "eslint-plugin-import": "2.17.2",
+    "eslint-plugin-jsx-a11y": "6.2.1",
+    "eslint-plugin-react": "7.12.4"
+  }
+}
