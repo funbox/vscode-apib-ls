@@ -11,6 +11,7 @@ const {
   TextDocument,
 } = require('vscode-languageserver-textdocument');
 
+const path = require('path');
 const crafter = require('@funbox/crafter');
 
 // Create a connection for the server, using Node's IPC as a transport.
@@ -81,7 +82,13 @@ async function validateTextDocument(textDocument) {
 
   const diagnostics = [];
 
-  const refract = crafter.parseSync(text, {})[0].toRefract();
+  const uri = new URL(textDocument.uri);
+  const options = {};
+  if (uri.protocol === 'file:') {
+    options.entryDir = path.dirname(uri.pathname);
+  }
+
+  const refract = crafter.parseSync(text, options)[0].toRefract();
 
   const buf = Buffer.from(text, 'utf8');
   refract.content.forEach(node => {
@@ -89,10 +96,15 @@ async function validateTextDocument(textDocument) {
       const nodeType = node.meta.classes.content[0].content;
       if (nodeType !== 'error' && nodeType !== 'warning') return;
 
-      const position = node.attributes.sourceMap.content[0].content[0].content;
+      const position = get('attributes', 'sourceMap', 'content', 0, 'content', 0, 'content').from(node);
 
-      const start = buf.slice(0, position[0].content).toString().length;
-      const length = buf.slice(position[0].content, position[0].content + position[1].content).toString().length;
+      let start = 0;
+      let length = 1;
+
+      if (position) {
+        start = buf.slice(0, position[0].content).toString().length;
+        length = buf.slice(position[0].content, position[0].content + position[1].content).toString().length;
+      }
 
       diagnostics.push({
         severity: nodeType === 'error' ? DiagnosticSeverity.Error : DiagnosticSeverity.Warning,
@@ -148,3 +160,9 @@ documents.listen(connection);
 
 // Listen on the connection
 connection.listen();
+
+function get(...path) {
+  const from = (source) => path.reduce((xs, x) => ((xs && xs[x] !== undefined) ? xs[x] : null), source);
+
+  return { from };
+}
