@@ -13,6 +13,7 @@ const {
 
 const path = require('path');
 const crafter = require('@funbox/crafter');
+const fs = require('fs');
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -23,8 +24,11 @@ const documents = new TextDocuments(TextDocument);
 
 let hasWorkspaceFolderCapability = false;
 
+let rootURI;
+
 connection.onInitialize((params) => {
   const capabilities = params.capabilities;
+  rootURI = get('workspaceFolders', 0, 'uri').from(params);
 
   hasWorkspaceFolderCapability = !!(
     capabilities.workspace && !!capabilities.workspace.workspaceFolders
@@ -77,44 +81,56 @@ documents.onDidChangeContent(change => {
 });
 
 async function validateTextDocument(textDocument) {
-  // The validator creates diagnostics for all uppercase words length 2 and more
-  const text = textDocument.getText();
+  let rootDoc;
+  let text;
+  const options = {};
+  const documentURI = new URL(textDocument.uri);
+  const documentPath = documentURI.pathname;
 
   const diagnostics = [];
 
-  const uri = new URL(textDocument.uri);
-  const options = {};
-  if (uri.protocol === 'file:') {
-    options.entryDir = path.dirname(uri.pathname);
+  if (rootURI) {
+    const uri = new URL(rootURI);
+
+    rootDoc = path.join(uri.pathname, 'doc.apib');
+    if (uri.protocol === 'file:' && fs.existsSync(rootDoc)) {
+
+      options.entryDir = uri.pathname;
+      text = fs.readFileSync(rootDoc, {encoding: 'utf8'});
+    }
+  } else {
+    text = textDocument.getText();
+    if (documentURI.protocol === 'file:') {
+      options.entryDir = path.dirname(documentPath);
+    }
   }
 
   const refract = crafter.parseSync(text, options)[0].toRefract();
 
-  const buf = Buffer.from(text, 'utf8');
   refract.content.forEach(node => {
     if (node.element === 'annotation') {
       const nodeType = node.meta.classes.content[0].content;
       if (nodeType !== 'error' && nodeType !== 'warning') return;
 
       const position = get('attributes', 'sourceMap', 'content', 0, 'content', 0, 'content').from(node);
+      const file = get('attributes', 'sourceMap', 'content', 0, 'file').from(node);
 
-      let start = 0;
-      let length = 1;
+      if (!file && (!rootDoc || rootDoc === documentPath)
+        || file && options.entryDir && path.join(options.entryDir, file) === documentPath
+        ) {
+          let start = position[0].content;
+          let length = position[1].content;
 
-      if (position) {
-        start = buf.slice(0, position[0].content).toString().length;
-        length = buf.slice(position[0].content, position[0].content + position[1].content).toString().length;
-      }
-
-      diagnostics.push({
-        severity: nodeType === 'error' ? DiagnosticSeverity.Error : DiagnosticSeverity.Warning,
-        range: {
-          start: textDocument.positionAt(start),
-          end: textDocument.positionAt(start + length),
-        },
-        message: node.content,
-        source: 'API Blueprint',
-      });
+          diagnostics.push({
+            severity: nodeType === 'error' ? DiagnosticSeverity.Error : DiagnosticSeverity.Warning,
+            range: {
+              start: textDocument.positionAt(start),
+              end: textDocument.positionAt(start + length),
+            },
+            message: node.content,
+            source: 'API Blueprint',
+          });
+        }
     }
   });
 
