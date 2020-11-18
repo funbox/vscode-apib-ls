@@ -6,7 +6,7 @@
     "node": "*"
   },
   "dependencies": {
-    "@funbox/crafter": "1.67.0",
+    "@funbox/crafter": "1.67.1",
     "vscode-languageserver": "^6.1.1",
     "vscode-languageserver-textdocument": "^1.0.1"
   },

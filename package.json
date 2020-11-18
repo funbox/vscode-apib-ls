@@ -27,11 +27,18 @@
         }
       }
     },
-    "languages": [{
-      "id": "apib",
-      "extensions": [ ".apib" ],
-      "aliases": [ "APIB", "Blueprint" ]
-  }]
+    "languages": [
+      {
+        "id": "apib",
+        "extensions": [
+          ".apib"
+        ],
+        "aliases": [
+          "APIB",
+          "Blueprint"
+        ]
+      }
+    ]
   },
   "scripts": {
     "postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
