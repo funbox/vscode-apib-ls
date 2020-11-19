@@ -3,6 +3,7 @@ const {
   DiagnosticSeverity,
   TextDocuments,
   ProposedFeatures,
+  DidChangeConfigurationNotification,
   CompletionItemKind,
   TextDocumentSyncKind,
 } = require('vscode-languageserver');
@@ -22,7 +23,9 @@ const connection = createConnection(ProposedFeatures.all);
 // Create a simple text document manager.
 const documents = new TextDocuments(TextDocument);
 
+let hasConfigurationCapability = false;
 let hasWorkspaceFolderCapability = false;
+let hasDiagnosticRelatedInformationCapability = false;
 
 let rootURI;
 
@@ -30,9 +33,17 @@ connection.onInitialize((params) => {
   const capabilities = params.capabilities;
   rootURI = get('workspaceFolders', 0, 'uri').from(params);
 
-  hasWorkspaceFolderCapability = !!(
-    capabilities.workspace && !!capabilities.workspace.workspaceFolders
-  );
+  hasConfigurationCapability = !!(
+		capabilities.workspace && !!capabilities.workspace.configuration
+	);
+	hasWorkspaceFolderCapability = !!(
+		capabilities.workspace && !!capabilities.workspace.workspaceFolders
+	);
+	hasDiagnosticRelatedInformationCapability = !!(
+		capabilities.textDocument &&
+		capabilities.textDocument.publishDiagnostics &&
+		capabilities.textDocument.publishDiagnostics.relatedInformation
+	);
 
   const result = {
     capabilities: {
@@ -54,6 +65,10 @@ connection.onInitialize((params) => {
 });
 
 connection.onInitialized(() => {
+  if (hasConfigurationCapability) {
+		// Register for all configuration changes.
+		connection.client.register(DidChangeConfigurationNotification.type, undefined);
+	}
   if (hasWorkspaceFolderCapability) {
     connection.workspace.onDidChangeWorkspaceFolders(() => {
       connection.console.log('Workspace folder change event received.');
@@ -61,13 +76,38 @@ connection.onInitialized(() => {
   }
 });
 
+const defaultSettings = { entryPoint: 'doc.apib' };
+let globalSettings = defaultSettings;
+
 // Cache the settings of all open documents
 const documentSettings = new Map();
 
 connection.onDidChangeConfiguration(() => {
-  // Revalidate all open text documents
-  documents.all().forEach(validateTextDocument);
+	if (hasConfigurationCapability) {
+		// Reset all cached document settings
+		documentSettings.clear();
+	} else {
+		globalSettings = change.settings.languageServerExample || defaultSettings;
+	}
+
+	// Revalidate all open text documents
+	documents.all().forEach(validateTextDocument);
 });
+
+function getDocumentSettings(resource) {
+	if (!hasConfigurationCapability) {
+		return Promise.resolve(globalSettings);
+	}
+	let result = documentSettings.get(resource);
+	if (!result) {
+		result = connection.workspace.getConfiguration({
+			scopeUri: resource,
+			section: 'apibLanguageServer'
+		});
+		documentSettings.set(resource, result);
+	}
+	return result;
+}
 
 // Only keep settings for open documents
 documents.onDidClose(e => {
@@ -81,8 +121,11 @@ documents.onDidChangeContent(change => {
 });
 
 async function validateTextDocument(textDocument) {
+  const settings = await getDocumentSettings(textDocument.uri);
+
   let rootDoc;
-  let text;
+  let rootDocExists = false;
+  let text = textDocument.getText();
   const options = {};
   const documentURI = new URL(textDocument.uri);
   const documentPath = documentURI.pathname;
@@ -92,14 +135,14 @@ async function validateTextDocument(textDocument) {
   if (rootURI) {
     const uri = new URL(rootURI);
 
-    rootDoc = path.join(uri.pathname, 'doc.apib');
-    if (uri.protocol === 'file:' && fs.existsSync(rootDoc)) {
+    rootDoc = path.join(uri.pathname, settings.entryPoint);
+    rootDocExists = fs.existsSync(rootDoc);
+    if (uri.protocol === 'file:' && rootDocExists) {
 
       options.entryDir = uri.pathname;
       text = fs.readFileSync(rootDoc, {encoding: 'utf8'});
     }
   } else {
-    text = textDocument.getText();
     if (documentURI.protocol === 'file:') {
       options.entryDir = path.dirname(documentPath);
     }
@@ -115,7 +158,7 @@ async function validateTextDocument(textDocument) {
       const position = get('attributes', 'sourceMap', 'content', 0, 'content', 0, 'content').from(node);
       const file = get('attributes', 'sourceMap', 'content', 0, 'file').from(node);
 
-      if (!file && (!rootDoc || rootDoc === documentPath)
+      if (!file && (!rootDocExists || rootDoc === documentPath)
         || file && options.entryDir && path.join(options.entryDir, file) === documentPath
         ) {
           let start = position[0].content;

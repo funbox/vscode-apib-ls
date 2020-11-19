@@ -24,6 +24,12 @@
           ],
           "default": "off",
           "description": "Traces the communication between VS Code and the language server."
+        },
+        "apibLanguageServer.entryPoint": {
+          "scope": "workbench",
+          "type": "string",
+          "default": "doc.apib",
+          "description": "Default entry point for multi-file documentation"
         }
       }
     },
