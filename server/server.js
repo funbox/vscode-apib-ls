@@ -25,7 +25,6 @@ const documents = new TextDocuments(TextDocument);
 
 let hasConfigurationCapability = false;
 let hasWorkspaceFolderCapability = false;
-let hasDiagnosticRelatedInformationCapability = false;
 
 let rootURI;
 
@@ -34,16 +33,11 @@ connection.onInitialize((params) => {
   rootURI = get('workspaceFolders', 0, 'uri').from(params);
 
   hasConfigurationCapability = !!(
-		capabilities.workspace && !!capabilities.workspace.configuration
-	);
-	hasWorkspaceFolderCapability = !!(
-		capabilities.workspace && !!capabilities.workspace.workspaceFolders
-	);
-	hasDiagnosticRelatedInformationCapability = !!(
-		capabilities.textDocument &&
-		capabilities.textDocument.publishDiagnostics &&
-		capabilities.textDocument.publishDiagnostics.relatedInformation
-	);
+    capabilities.workspace && !!capabilities.workspace.configuration
+  );
+  hasWorkspaceFolderCapability = !!(
+    capabilities.workspace && !!capabilities.workspace.workspaceFolders
+  );
 
   const result = {
     capabilities: {
@@ -66,9 +60,9 @@ connection.onInitialize((params) => {
 
 connection.onInitialized(() => {
   if (hasConfigurationCapability) {
-		// Register for all configuration changes.
-		connection.client.register(DidChangeConfigurationNotification.type, undefined);
-	}
+    // Register for all configuration changes.
+    connection.client.register(DidChangeConfigurationNotification.type, undefined);
+  }
   if (hasWorkspaceFolderCapability) {
     connection.workspace.onDidChangeWorkspaceFolders(() => {
       connection.console.log('Workspace folder change event received.');
@@ -83,30 +77,30 @@ let globalSettings = defaultSettings;
 const documentSettings = new Map();
 
 connection.onDidChangeConfiguration(() => {
-	if (hasConfigurationCapability) {
-		// Reset all cached document settings
-		documentSettings.clear();
-	} else {
-		globalSettings = change.settings.languageServerExample || defaultSettings;
-	}
+  if (hasConfigurationCapability) {
+    // Reset all cached document settings
+    documentSettings.clear();
+  } else {
+    globalSettings = change.settings.languageServerExample || defaultSettings;
+  }
 
-	// Revalidate all open text documents
-	documents.all().forEach(validateTextDocument);
+  // Revalidate all open text documents
+  documents.all().forEach(validateTextDocument);
 });
 
 function getDocumentSettings(resource) {
-	if (!hasConfigurationCapability) {
-		return Promise.resolve(globalSettings);
-	}
-	let result = documentSettings.get(resource);
-	if (!result) {
-		result = connection.workspace.getConfiguration({
-			scopeUri: resource,
-			section: 'apibLanguageServer'
-		});
-		documentSettings.set(resource, result);
-	}
-	return result;
+  if (!hasConfigurationCapability) {
+    return Promise.resolve(globalSettings);
+  }
+  let result = documentSettings.get(resource);
+  if (!result) {
+    result = connection.workspace.getConfiguration({
+      scopeUri: resource,
+      section: 'apibLanguageServer'
+    });
+    documentSettings.set(resource, result);
+  }
+  return result;
 }
 
 // Only keep settings for open documents
@@ -148,7 +142,9 @@ async function validateTextDocument(textDocument) {
     }
   }
 
-  const refract = crafter.parseSync(text, options)[0].toRefract();
+  options.readFile = readFile;
+
+  const refract = (await crafter.parse(text, options))[0].toRefract();
 
   refract.content.forEach(node => {
     if (node.element === 'annotation') {
@@ -224,4 +220,12 @@ function get(...path) {
   const from = (source) => path.reduce((xs, x) => ((xs && xs[x] !== undefined) ? xs[x] : null), source);
 
   return { from };
+}
+
+async function readFile(file) {
+  const doc = documents.get(`file://${file}`);
+  if (doc) {
+    return doc.getText();
+  }
+  return fs.promises.readFile(file, { encoding: 'utf-8' });
 }
