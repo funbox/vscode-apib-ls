@@ -132,9 +132,11 @@ async function validateTextDocument(textDocument) {
     rootDoc = path.join(uri.pathname, settings.entryPoint);
     rootDocExists = fs.existsSync(rootDoc);
     if (uri.protocol === 'file:' && rootDocExists) {
-
       options.entryDir = uri.pathname;
-      text = fs.readFileSync(rootDoc, {encoding: 'utf8'});
+
+      text = documents.get(`file://${rootDoc}`)
+        ? documents.get(`file://${rootDoc}`).getText()
+        : await fs.promises.readFile(rootDoc, {encoding: 'utf8'});
     }
   } else {
     if (documentURI.protocol === 'file:') {
