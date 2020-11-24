@@ -75,7 +75,7 @@ let globalSettings = defaultSettings;
 // Cache the settings of all open documents
 const documentSettings = new Map();
 
-connection.onDidChangeConfiguration(() => {
+connection.onDidChangeConfiguration(change => {
   if (hasConfigurationCapability) {
     // Reset all cached document settings
     documentSettings.clear();
@@ -95,7 +95,7 @@ function getDocumentSettings(resource) {
   if (!result) {
     result = connection.workspace.getConfiguration({
       scopeUri: resource,
-      section: 'apibLanguageServer'
+      section: 'apibLanguageServer',
     });
     documentSettings.set(resource, result);
   }
@@ -124,8 +124,8 @@ async function validateTextDocument(textDocument) {
     if (isWarningOrError(node) && belongsToCurrentFile(node)) {
       const nodeType = node.meta.classes.content[0].content;
       const position = get('attributes', 'sourceMap', 'content', 0, 'content', 0, 'content').from(node);
-      let start = position[0].content;
-      let length = position[1].content;
+      const start = position[0].content;
+      const length = position[1].content;
 
       diagnostics.push({
         severity: nodeType === 'error' ? DiagnosticSeverity.Error : DiagnosticSeverity.Warning,
@@ -164,10 +164,10 @@ async function calculateCrafterParams(textDocument) {
         entryPath = (new URL(doc.uri)).pathname;
       } else {
         try {
-          text = await fs.promises.readFile(p, {encoding: 'utf8'});
+          text = await fs.promises.readFile(p, { encoding: 'utf8' });
           entryPath = p;
-        } catch (e) {
-        }
+        // eslint-disable-next-line no-empty
+        } catch (e) {}
       }
     }
   }
@@ -189,7 +189,7 @@ function getDefaultCrafterParams(textDocument) {
     options.entryDir = path.dirname(documentURI.pathname);
   }
 
-  let text = textDocument.getText();
+  const text = textDocument.getText();
 
   return { text, options };
 }
@@ -214,8 +214,8 @@ documents.listen(connection);
 // Listen on the connection
 connection.listen();
 
-function get(...path) {
-  const from = (source) => path.reduce((xs, x) => ((xs && xs[x] !== undefined) ? xs[x] : null), source);
+function get(...p) {
+  const from = (source) => p.reduce((xs, x) => ((xs && xs[x] !== undefined) ? xs[x] : null), source);
 
   return { from };
 }
