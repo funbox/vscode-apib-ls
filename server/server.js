@@ -115,68 +115,92 @@ documents.onDidChangeContent(change => {
 });
 
 async function validateTextDocument(textDocument) {
-  const settings = await getDocumentSettings(textDocument.uri);
-
-  let rootDoc;
-  let rootDocExists = false;
-  let text = textDocument.getText();
-  const options = {};
-  const documentURI = new URL(textDocument.uri);
-  const documentPath = documentURI.pathname;
-
+  const textDocumentPath = (new URL(textDocument.uri)).pathname;
   const diagnostics = [];
+
+  const { text, options, entryPath } = await calculateCrafterParams(textDocument);
+  const refract = (await crafter.parse(text, options))[0].toRefract();
+
+  refract.content.forEach(node => {
+    if (isWarningOrError(node) && belongsToCurrentFile(node)) {
+      const nodeType = node.meta.classes.content[0].content;
+      const position = get('attributes', 'sourceMap', 'content', 0, 'content', 0, 'content').from(node);
+      let start = position[0].content;
+      let length = position[1].content;
+
+      diagnostics.push({
+        severity: nodeType === 'error' ? DiagnosticSeverity.Error : DiagnosticSeverity.Warning,
+        range: {
+          start: textDocument.positionAt(start),
+          end: textDocument.positionAt(start + length),
+        },
+        message: node.content,
+        source: 'API Blueprint',
+      });
+    }
+  });
+
+  connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
+
+  function belongsToCurrentFile(node) {
+    const file = get('attributes', 'sourceMap', 'content', 0, 'file').from(node);
+    return (file ? path.join(options.entryDir, file) : entryPath) === textDocumentPath;
+  }
+}
+
+async function calculateCrafterParams(textDocument) {
+  const defaultCrafterParams = getDefaultCrafterParams(textDocument);
+  const options = defaultCrafterParams.options;
+  let text = defaultCrafterParams.text;
+  let entryPath = (new URL(textDocument.uri)).pathname;
 
   if (rootURI) {
     const uri = new URL(rootURI);
 
-    rootDoc = path.join(uri.pathname, settings.entryPoint);
-    rootDocExists = fs.existsSync(rootDoc);
-    if (uri.protocol === 'file:' && rootDocExists) {
-      options.entryDir = uri.pathname;
-
-      text = documents.get(`file://${rootDoc}`)
-        ? documents.get(`file://${rootDoc}`).getText()
-        : await fs.promises.readFile(rootDoc, {encoding: 'utf8'});
-    }
-  } else {
-    if (documentURI.protocol === 'file:') {
-      options.entryDir = path.dirname(documentPath);
+    if (uri.protocol === 'file:') {
+      const p = await rootDocPath(textDocument);
+      const doc = documents.get(`file://${p}`);
+      if (doc) {
+        text = doc.getText();
+        entryPath = (new URL(doc.uri)).pathname;
+      } else {
+        try {
+          text = await fs.promises.readFile(p, {encoding: 'utf8'});
+          entryPath = p;
+        } catch (e) {
+        }
+      }
     }
   }
 
-  options.readFile = readFile;
+  return { text, options, entryPath };
+}
 
-  const refract = (await crafter.parse(text, options))[0].toRefract();
+async function rootDocPath(textDocument) {
+  const settings = await getDocumentSettings(textDocument.uri);
+  if (!rootURI) return null;
+  const uri = new URL(rootURI);
+  return path.join(uri.pathname, settings.entryPoint);
+}
 
-  refract.content.forEach(node => {
-    if (node.element === 'annotation') {
-      const nodeType = node.meta.classes.content[0].content;
-      if (nodeType !== 'error' && nodeType !== 'warning') return;
+function getDefaultCrafterParams(textDocument) {
+  const options = { readFile };
+  const documentURI = new URL(textDocument.uri);
+  if (documentURI.protocol === 'file:') {
+    options.entryDir = path.dirname(documentURI.pathname);
+  }
 
-      const position = get('attributes', 'sourceMap', 'content', 0, 'content', 0, 'content').from(node);
-      const file = get('attributes', 'sourceMap', 'content', 0, 'file').from(node);
+  let text = textDocument.getText();
 
-      if (!file && (!rootDocExists || rootDoc === documentPath)
-        || file && options.entryDir && path.join(options.entryDir, file) === documentPath
-        ) {
-          let start = position[0].content;
-          let length = position[1].content;
+  return { text, options };
+}
 
-          diagnostics.push({
-            severity: nodeType === 'error' ? DiagnosticSeverity.Error : DiagnosticSeverity.Warning,
-            range: {
-              start: textDocument.positionAt(start),
-              end: textDocument.positionAt(start + length),
-            },
-            message: node.content,
-            source: 'API Blueprint',
-          });
-        }
-    }
-  });
-
-  // Send the computed diagnostics to VSCode.
-  connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
+function isWarningOrError(node) {
+  if (node.element === 'annotation') {
+    const nodeType = node.meta.classes.content[0].content;
+    return nodeType === 'error' || nodeType === 'warning';
+  }
+  return false;
 }
 
 connection.onDidChangeWatchedFiles(() => {
