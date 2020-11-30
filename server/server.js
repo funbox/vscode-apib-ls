@@ -80,7 +80,7 @@ connection.onDidChangeConfiguration(change => {
     // Reset all cached document settings
     documentSettings.clear();
   } else {
-    globalSettings = change.settings.languageServerExample || defaultSettings;
+    globalSettings = change.settings.apibLanguageServer || defaultSettings;
   }
 
   // Revalidate all open text documents
