@@ -220,7 +220,7 @@ function get(...p) {
   return { from };
 }
 
-async function readFile(file) {
+function readFile(file) {
   const doc = documents.get(`file://${file}`);
   if (doc) {
     return doc.getText();
