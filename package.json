@@ -11,7 +11,7 @@
   },
   "publisher": "FunBox",
   "activationEvents": [
-    "onLanguage:plaintext"
+    "onLanguage:apib"
   ],
   "main": "./client/extension",
   "contributes": {
