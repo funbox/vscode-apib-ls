@@ -48,6 +48,27 @@
           "APIB",
           "Blueprint"
         ]
+      },
+      {
+        "id": "mson",
+        "extensions": [
+          ".mson"
+        ],
+        "aliases": [
+          "MSON"
+        ]
+      }
+    ],
+    "grammars": [
+      {
+        "language": "apib",
+        "scopeName": "text.html.markdown.source.gfm.apib",
+        "path": "./syntax/APIBlueprint.tmLanguage"
+      },
+      {
+        "language": "mson",
+        "scopeName": "text.html.markdown.source.gfm.mson",
+        "path": "./syntax/MSON.tmLanguage"
       }
     ]
   },
