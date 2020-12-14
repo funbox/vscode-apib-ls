@@ -167,6 +167,25 @@
         </dict>
         <dict>
           <key>name</key>
+          <string>parametrized-attribute</string>
+          <key>match</key>
+          <string>(min-length|max-length|minimum|maximum|pattern|format)=("([^"]+)")</string>
+          <key>captures</key>
+          <dict>
+            <key>1</key>
+            <dict>
+              <key>name</key>
+              <string>keyword</string>
+            </dict>
+            <key>2</key>
+            <dict>
+              <key>name</key>
+              <string>constant.character.entity.gfm</string>
+            </dict>
+          </dict>
+        </dict>
+        <dict>
+          <key>name</key>
           <string>entity.name.class</string>
           <key>match</key>
           <string>(boolean|string|number|enum|object|file|array|\*)</string>
