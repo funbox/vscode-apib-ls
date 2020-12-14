@@ -169,7 +169,7 @@
           <key>name</key>
           <string>entity.name.class</string>
           <key>match</key>
-          <string>(boolean|string|number|enum|object|array|\*)</string>
+          <string>(boolean|string|number|enum|object|file|array|\*)</string>
         </dict>
       </array>
     </dict>
