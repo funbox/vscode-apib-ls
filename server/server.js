@@ -128,10 +128,6 @@ connection.onDocumentSymbol(async (symbolParam) => {
   return result;
 
   function processDataStructures(node) {
-    const sm = get('attributes', 'sourceMap', 'content', 0, 'content', 0, 'content').from(node);
-    const start = sm[0].content;
-    const length = sm[1].content;
-
     if (!belongsToCurrentFile(node, options, entryPath, textDocument)) {
       return;
     }
@@ -141,10 +137,7 @@ connection.onDocumentSymbol(async (symbolParam) => {
       kind: SymbolKind.Namespace,
       location: {
         uri: null,
-        range: {
-          start: textDocument.positionAt(start),
-          end: textDocument.positionAt(start + length),
-        },
+        range: getRangeForNode(node),
       },
     });
 
@@ -152,21 +145,21 @@ connection.onDocumentSymbol(async (symbolParam) => {
   }
 
   function processNamedType(node) {
-    const sm = get('attributes', 'sourceMap', 'content', 0, 'content', 0, 'content').from(node);
-    const start = sm[0].content;
-    const length = sm[1].content;
-
     result.push({
       name: get('content', 'meta', 'id', 'content').from(node),
       kind: SymbolKind.Class,
       location: {
         uri: null,
-        range: rangeFromStartAndLength(start, length),
+        range: getRangeForNode(node),
       },
     });
   }
 
-  function rangeFromStartAndLength(start, length) {
+  function getRangeForNode(node) {
+    const sm = get('attributes', 'sourceMap', 'content', 0, 'content', 0, 'content').from(node);
+    const start = sm[0].content;
+    const length = sm[1].content;
+
     // TODO length - 1 баг или нет?
     return {
       start: textDocument.positionAt(currentDocumentBuffer.slice(0, start).toString().length),
@@ -218,7 +211,7 @@ async function calculateCrafterParams(textDocument) {
   if (rootURI) {
     const uri = new URL(rootURI);
 
-    if (uri.protocol === 'file:') {
+    if (uri.protocol === 'file:' && entryPath.indexOf(uri.pathname) === 0) {
       const p = await rootDocPath(textDocument);
       const doc = documents.get(`file://${p}`);
       if (doc) {
@@ -241,7 +234,6 @@ async function calculateCrafterParams(textDocument) {
 
 async function rootDocPath(textDocument) {
   const settings = await getDocumentSettings(textDocument.uri);
-  if (!rootURI) return null;
   const uri = new URL(rootURI);
   return path.join(uri.pathname, settings.entryPoint);
 }
