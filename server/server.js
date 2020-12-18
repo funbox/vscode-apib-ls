@@ -5,6 +5,7 @@ const {
   ProposedFeatures,
   DidChangeConfigurationNotification,
   TextDocumentSyncKind,
+  SymbolKind,
 } = require('vscode-languageserver');
 
 const {
@@ -41,6 +42,7 @@ connection.onInitialize((params) => {
   const result = {
     capabilities: {
       textDocumentSync: TextDocumentSyncKind.Incremental,
+      documentSymbolProvider: true,
     },
   };
   if (hasWorkspaceFolderCapability) {
@@ -109,15 +111,74 @@ documents.onDidChangeContent(change => {
   validateTextDocument(change.document);
 });
 
+connection.onDocumentSymbol(async (symbolParam) => {
+  const textDocument = documents.get(symbolParam.textDocument.uri);
+  const currentDocumentBuffer = Buffer.from(textDocument.getText());
+
+  const { text, options, entryPath } = await calculateCrafterParams(textDocument);
+  const refract = (await crafter.parse(text, options))[0].toRefract(true);
+
+  const result = [];
+  refract.content[0].content.forEach(node => {
+    if (node.element === 'category' && get('meta', 'classes', 'content', 0, 'content').from(node) === 'dataStructures') {
+      const sm = get('attributes', 'sourceMap', 'content', 0, 'content', 0, 'content').from(node);
+      const start = sm[0].content;
+      const length = sm[1].content;
+
+      if (!belongsToCurrentFile(node, options, entryPath, textDocument)) {
+        return;
+      }
+
+      result.push({
+        name: 'Data Structures',
+        kind: SymbolKind.Namespace,
+        location: {
+          uri: null,
+          range: {
+            start: textDocument.positionAt(start),
+            end: textDocument.positionAt(start + length),
+          },
+        },
+      });
+
+      node.content.forEach(namedType => {
+        const sm = get('attributes', 'sourceMap', 'content', 0, 'content', 0, 'content').from(namedType);
+        const start = sm[0].content;
+        const length = sm[1].content;
+
+        result.push({
+          name: get('content', 'meta', 'id', 'content').from(namedType),
+          kind: SymbolKind.Class,
+          location: {
+            uri: null,
+            range: rangeFromStartAndLength(start, length),
+          },
+        });
+      });
+    }
+  });
+
+  connection.console.log(result);
+
+  return result;
+
+  function rangeFromStartAndLength(start, length) {
+    // TODO length - 1 баг или нет?
+    return {
+      start: textDocument.positionAt(currentDocumentBuffer.slice(0, start).toString().length),
+      end: textDocument.positionAt(currentDocumentBuffer.slice(0, start + length - 1).toString().length),
+    };
+  }
+});
+
 async function validateTextDocument(textDocument) {
-  const textDocumentPath = (new URL(textDocument.uri)).pathname;
   const diagnostics = [];
 
   const { text, options, entryPath } = await calculateCrafterParams(textDocument);
   const refract = (await crafter.parse(text, options))[0].toRefract();
 
   refract.content.forEach(node => {
-    if (isWarningOrError(node) && belongsToCurrentFile(node)) {
+    if (isWarningOrError(node) && belongsToCurrentFile(node, options, entryPath, textDocument)) {
       const nodeType = node.meta.classes.content[0].content;
       const position = get('attributes', 'sourceMap', 'content', 0, 'content', 0, 'content').from(node);
       const start = position[0].content;
@@ -136,11 +197,12 @@ async function validateTextDocument(textDocument) {
   });
 
   connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
+}
 
-  function belongsToCurrentFile(node) {
-    const file = get('attributes', 'sourceMap', 'content', 0, 'file').from(node);
-    return (file ? path.join(options.entryDir, file) : entryPath) === textDocumentPath;
-  }
+function belongsToCurrentFile(node, crafterOptions, entryPath, textDocument) {
+  const textDocumentPath = (new URL(textDocument.uri)).pathname;
+  const file = get('attributes', 'sourceMap', 'content', 0, 'file').from(node);
+  return (file ? path.join(crafterOptions.entryDir, file) : entryPath) === textDocumentPath;
 }
 
 async function calculateCrafterParams(textDocument) {
@@ -167,6 +229,8 @@ async function calculateCrafterParams(textDocument) {
       }
     }
   }
+
+  options.entryDir = path.dirname(entryPath);
 
   return { text, options, entryPath };
 }
