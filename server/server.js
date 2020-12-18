@@ -121,46 +121,50 @@ connection.onDocumentSymbol(async (symbolParam) => {
   const result = [];
   refract.content[0].content.forEach(node => {
     if (node.element === 'category' && get('meta', 'classes', 'content', 0, 'content').from(node) === 'dataStructures') {
-      const sm = get('attributes', 'sourceMap', 'content', 0, 'content', 0, 'content').from(node);
-      const start = sm[0].content;
-      const length = sm[1].content;
-
-      if (!belongsToCurrentFile(node, options, entryPath, textDocument)) {
-        return;
-      }
-
-      result.push({
-        name: 'Data Structures',
-        kind: SymbolKind.Namespace,
-        location: {
-          uri: null,
-          range: {
-            start: textDocument.positionAt(start),
-            end: textDocument.positionAt(start + length),
-          },
-        },
-      });
-
-      node.content.forEach(namedType => {
-        const sm = get('attributes', 'sourceMap', 'content', 0, 'content', 0, 'content').from(namedType);
-        const start = sm[0].content;
-        const length = sm[1].content;
-
-        result.push({
-          name: get('content', 'meta', 'id', 'content').from(namedType),
-          kind: SymbolKind.Class,
-          location: {
-            uri: null,
-            range: rangeFromStartAndLength(start, length),
-          },
-        });
-      });
+      processDataStructures(node);
     }
   });
 
-  connection.console.log(result);
-
   return result;
+
+  function processDataStructures(node) {
+    const sm = get('attributes', 'sourceMap', 'content', 0, 'content', 0, 'content').from(node);
+    const start = sm[0].content;
+    const length = sm[1].content;
+
+    if (!belongsToCurrentFile(node, options, entryPath, textDocument)) {
+      return;
+    }
+
+    result.push({
+      name: 'Data Structures',
+      kind: SymbolKind.Namespace,
+      location: {
+        uri: null,
+        range: {
+          start: textDocument.positionAt(start),
+          end: textDocument.positionAt(start + length),
+        },
+      },
+    });
+
+    node.content.forEach(namedType => processNamedType(namedType));
+  }
+
+  function processNamedType(node) {
+    const sm = get('attributes', 'sourceMap', 'content', 0, 'content', 0, 'content').from(node);
+    const start = sm[0].content;
+    const length = sm[1].content;
+
+    result.push({
+      name: get('content', 'meta', 'id', 'content').from(node),
+      kind: SymbolKind.Class,
+      location: {
+        uri: null,
+        range: rangeFromStartAndLength(start, length),
+      },
+    });
+  }
 
   function rangeFromStartAndLength(start, length) {
     // TODO length - 1 баг или нет?
