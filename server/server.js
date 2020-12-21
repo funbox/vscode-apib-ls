@@ -1,41 +1,50 @@
 const {
   createConnection,
-  DiagnosticSeverity,
   TextDocuments,
   ProposedFeatures,
   DidChangeConfigurationNotification,
   TextDocumentSyncKind,
-  SymbolKind,
 } = require('vscode-languageserver');
 
 const {
   TextDocument,
 } = require('vscode-languageserver-textdocument');
 
-const path = require('path');
-const crafter = require('@funbox/crafter');
-const fs = require('fs');
+const {
+  get,
+} = require('./utils');
+
+const SymbolsProcessor = require('./SymbolsProcessor');
+const DocumentValidator = require('./DocumentValidator');
+
+const defaultSettings = { entryPoint: 'doc.apib' };
+
+const serverState = {
+  // Create a simple text document manager.
+  documents: new TextDocuments(TextDocument),
+  hasConfigurationCapability: false,
+  hasWorkspaceFolderCapability: false,
+  rootURI: null,
+  globalSettings: defaultSettings, // TODO clone?
+  // Cache the settings of all open documents
+  documentSettings: new Map(),
+};
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
 const connection = createConnection(ProposedFeatures.all);
 
-// Create a simple text document manager.
-const documents = new TextDocuments(TextDocument);
-
-let hasConfigurationCapability = false;
-let hasWorkspaceFolderCapability = false;
-
-let rootURI;
+const symbolsProcessor = new SymbolsProcessor(serverState);
+const documentValidator = new DocumentValidator(serverState);
 
 connection.onInitialize((params) => {
   const capabilities = params.capabilities;
-  rootURI = get('workspaceFolders', 0, 'uri').from(params);
+  serverState.rootURI = get('workspaceFolders', 0, 'uri').from(params);
 
-  hasConfigurationCapability = !!(
+  serverState.hasConfigurationCapability = !!(
     capabilities.workspace && !!capabilities.workspace.configuration
   );
-  hasWorkspaceFolderCapability = !!(
+  serverState.hasWorkspaceFolderCapability = !!(
     capabilities.workspace && !!capabilities.workspace.workspaceFolders
   );
 
@@ -45,7 +54,7 @@ connection.onInitialize((params) => {
       documentSymbolProvider: true,
     },
   };
-  if (hasWorkspaceFolderCapability) {
+  if (serverState.hasWorkspaceFolderCapability) {
     result.capabilities.workspace = {
       workspaceFolders: {
         supported: true,
@@ -56,207 +65,47 @@ connection.onInitialize((params) => {
 });
 
 connection.onInitialized(() => {
-  if (hasConfigurationCapability) {
+  if (serverState.hasConfigurationCapability) {
     // Register for all configuration changes.
     connection.client.register(DidChangeConfigurationNotification.type, undefined);
   }
-  if (hasWorkspaceFolderCapability) {
+  if (serverState.hasWorkspaceFolderCapability) {
     connection.workspace.onDidChangeWorkspaceFolders(() => {
       connection.console.log('Workspace folder change event received.');
     });
   }
 });
 
-const defaultSettings = { entryPoint: 'doc.apib' };
-let globalSettings = defaultSettings;
-
-// Cache the settings of all open documents
-const documentSettings = new Map();
-
 connection.onDidChangeConfiguration(change => {
-  if (hasConfigurationCapability) {
+  if (serverState.hasConfigurationCapability) {
     // Reset all cached document settings
-    documentSettings.clear();
+    serverState.documentSettings.clear();
   } else {
-    globalSettings = change.settings.apibLanguageServer || defaultSettings;
+    serverState.globalSettings = change.settings.apibLanguageServer || defaultSettings;
   }
 
   // Revalidate all open text documents
-  documents.all().forEach(validateTextDocument);
+  serverState.documents.all().forEach(doc => {
+    documentValidator.validate(doc).then(diagnostics => {
+      connection.sendDiagnostics({ uri: doc.uri, diagnostics });
+    });
+  });
 });
 
-function getDocumentSettings(resource) {
-  if (!hasConfigurationCapability) {
-    return Promise.resolve(globalSettings);
-  }
-  let result = documentSettings.get(resource);
-  if (!result) {
-    result = connection.workspace.getConfiguration({
-      scopeUri: resource,
-      section: 'apibLanguageServer',
-    });
-    documentSettings.set(resource, result);
-  }
-  return result;
-}
-
 // Only keep settings for open documents
-documents.onDidClose(e => {
-  documentSettings.delete(e.document.uri);
+serverState.documents.onDidClose(e => {
+  serverState.documentSettings.delete(e.document.uri);
 });
 
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
-documents.onDidChangeContent(change => {
-  validateTextDocument(change.document);
+serverState.documents.onDidChangeContent(change => {
+  documentValidator.validate(change.document).then(diagnostics => {
+    connection.sendDiagnostics({ uri: change.document.uri, diagnostics });
+  });
 });
 
-connection.onDocumentSymbol(async (symbolParam) => {
-  const textDocument = documents.get(symbolParam.textDocument.uri);
-  const currentDocumentBuffer = Buffer.from(textDocument.getText());
-
-  const { text, options, entryPath } = await calculateCrafterParams(textDocument);
-  const refract = (await crafter.parse(text, options))[0].toRefract(true);
-
-  const result = [];
-  refract.content[0].content.forEach(node => {
-    if (node.element === 'category' && get('meta', 'classes', 'content', 0, 'content').from(node) === 'dataStructures') {
-      processDataStructures(node);
-    }
-  });
-
-  return result;
-
-  function processDataStructures(node) {
-    if (!belongsToCurrentFile(node, options, entryPath, textDocument)) {
-      return;
-    }
-
-    result.push({
-      name: 'Data Structures',
-      kind: SymbolKind.Namespace,
-      location: {
-        uri: null,
-        range: getRangeForNode(node),
-      },
-    });
-
-    node.content.forEach(namedType => processNamedType(namedType));
-  }
-
-  function processNamedType(node) {
-    result.push({
-      name: get('content', 'meta', 'id', 'content').from(node),
-      kind: SymbolKind.Class,
-      location: {
-        uri: null,
-        range: getRangeForNode(node),
-      },
-    });
-  }
-
-  function getRangeForNode(node) {
-    const sm = get('attributes', 'sourceMap', 'content', 0, 'content', 0, 'content').from(node);
-    const start = sm[0].content;
-    const length = sm[1].content;
-
-    // TODO length - 1 баг или нет?
-    return {
-      start: textDocument.positionAt(currentDocumentBuffer.slice(0, start).toString().length),
-      end: textDocument.positionAt(currentDocumentBuffer.slice(0, start + length - 1).toString().length),
-    };
-  }
-});
-
-async function validateTextDocument(textDocument) {
-  const diagnostics = [];
-
-  const { text, options, entryPath } = await calculateCrafterParams(textDocument);
-  const refract = (await crafter.parse(text, options))[0].toRefract();
-
-  refract.content.forEach(node => {
-    if (isWarningOrError(node) && belongsToCurrentFile(node, options, entryPath, textDocument)) {
-      const nodeType = node.meta.classes.content[0].content;
-      const position = get('attributes', 'sourceMap', 'content', 0, 'content', 0, 'content').from(node);
-      const start = position[0].content;
-      const length = position[1].content;
-
-      diagnostics.push({
-        severity: nodeType === 'error' ? DiagnosticSeverity.Error : DiagnosticSeverity.Warning,
-        range: {
-          start: textDocument.positionAt(start),
-          end: textDocument.positionAt(start + length),
-        },
-        message: node.content,
-        source: 'API Blueprint',
-      });
-    }
-  });
-
-  connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
-}
-
-function belongsToCurrentFile(node, crafterOptions, entryPath, textDocument) {
-  const textDocumentPath = (new URL(textDocument.uri)).pathname;
-  const file = get('attributes', 'sourceMap', 'content', 0, 'file').from(node);
-  return (file ? path.join(crafterOptions.entryDir, file) : entryPath) === textDocumentPath;
-}
-
-async function calculateCrafterParams(textDocument) {
-  const defaultCrafterParams = getDefaultCrafterParams(textDocument);
-  const options = defaultCrafterParams.options;
-  let text = defaultCrafterParams.text;
-  let entryPath = (new URL(textDocument.uri)).pathname;
-
-  if (rootURI) {
-    const uri = new URL(rootURI);
-
-    if (uri.protocol === 'file:' && entryPath.indexOf(uri.pathname) === 0) {
-      const p = await rootDocPath(textDocument);
-      const doc = documents.get(`file://${p}`);
-      if (doc) {
-        text = doc.getText();
-        entryPath = (new URL(doc.uri)).pathname;
-      } else {
-        try {
-          text = await fs.promises.readFile(p, { encoding: 'utf8' });
-          entryPath = p;
-        // eslint-disable-next-line no-empty
-        } catch (e) {}
-      }
-    }
-  }
-
-  options.entryDir = path.dirname(entryPath);
-
-  return { text, options, entryPath };
-}
-
-async function rootDocPath(textDocument) {
-  const settings = await getDocumentSettings(textDocument.uri);
-  const uri = new URL(rootURI);
-  return path.join(uri.pathname, settings.entryPoint);
-}
-
-function getDefaultCrafterParams(textDocument) {
-  const options = { readFile };
-  const documentURI = new URL(textDocument.uri);
-  if (documentURI.protocol === 'file:') {
-    options.entryDir = path.dirname(documentURI.pathname);
-  }
-
-  const text = textDocument.getText();
-
-  return { text, options };
-}
-
-function isWarningOrError(node) {
-  if (node.element === 'annotation') {
-    const nodeType = node.meta.classes.content[0].content;
-    return nodeType === 'error' || nodeType === 'warning';
-  }
-  return false;
-}
+connection.onDocumentSymbol(symbolParam => symbolsProcessor.generateSymbols(symbolParam));
 
 connection.onDidChangeWatchedFiles(() => {
   // Monitored files have change in VSCode
@@ -265,21 +114,7 @@ connection.onDidChangeWatchedFiles(() => {
 
 // Make the text document manager listen on the connection
 // for open, change and close text document events
-documents.listen(connection);
+serverState.documents.listen(connection);
 
 // Listen on the connection
 connection.listen();
-
-function get(...p) {
-  const from = (source) => p.reduce((xs, x) => ((xs && xs[x] !== undefined) ? xs[x] : null), source);
-
-  return { from };
-}
-
-function readFile(file) {
-  const doc = documents.get(`file://${file}`);
-  if (doc) {
-    return doc.getText();
-  }
-  return fs.promises.readFile(file, { encoding: 'utf-8' });
-}
