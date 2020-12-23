@@ -31,6 +31,9 @@ class SymbolsProcessor {
           case 'dataStructures':
             processDataStructures(node);
             break;
+          case 'schemaStructures':
+            processSchemaStructures(node);
+            break;
           case 'resourceGroup':
             processResourceGroup(node);
             break;
@@ -61,6 +64,30 @@ class SymbolsProcessor {
     function processNamedType(node) {
       result.push({
         name: get('content', 'meta', 'id', 'content').from(node),
+        kind: SymbolKind.Class,
+        location: {
+          uri: null,
+          range: getRangeForNode(node),
+        },
+      });
+    }
+
+    function processSchemaStructures(node) {
+      result.push({
+        name: 'Schema Structures',
+        kind: SymbolKind.Namespace,
+        location: {
+          uri: null,
+          range: getRangeForNode(node),
+        },
+      });
+
+      node.content.forEach(namedType => processSchemaType(namedType));
+    }
+
+    function processSchemaType(node) {
+      result.push({
+        name: get('meta', 'id', 'content').from(node),
         kind: SymbolKind.Class,
         location: {
           uri: null,
