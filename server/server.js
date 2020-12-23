@@ -28,11 +28,12 @@ const serverState = {
   globalSettings: defaultSettings, // TODO clone?
   // Cache the settings of all open documents
   documentSettings: new Map(),
+  // Create a connection for the server, using Node's IPC as a transport.
+  // Also include all preview / proposed LSP features.
+  connection: createConnection(ProposedFeatures.all),
 };
 
-// Create a connection for the server, using Node's IPC as a transport.
-// Also include all preview / proposed LSP features.
-const connection = createConnection(ProposedFeatures.all);
+const connection = serverState.connection;
 
 const symbolsProcessor = new SymbolsProcessor(serverState);
 const documentValidator = new DocumentValidator(serverState);

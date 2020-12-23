@@ -22,18 +22,30 @@ class SymbolsProcessor {
 
     const result = [];
     refract.content[0].content.forEach(node => {
-      if (node.element === 'category' && get('meta', 'classes', 'content', 0, 'content').from(node) === 'dataStructures') {
-        processDataStructures(node);
+      if (!belongsToCurrentFile(node, options, entryPath, textDocument)) {
+        return;
+      }
+      if (node.element === 'category') {
+        const categoryClass = get('meta', 'classes', 'content', 0, 'content').from(node);
+        switch (categoryClass) {
+          case 'dataStructures':
+            processDataStructures(node);
+            break;
+          case 'resourceGroup':
+            processResourceGroup(node);
+            break;
+          // no default
+        }
+      }
+
+      if (node.element === 'resource') {
+        processResourceOrEndpoint(node);
       }
     });
 
     return result;
 
     function processDataStructures(node) {
-      if (!belongsToCurrentFile(node, options, entryPath, textDocument)) {
-        return;
-      }
-
       result.push({
         name: 'Data Structures',
         kind: SymbolKind.Namespace,
@@ -57,8 +69,135 @@ class SymbolsProcessor {
       });
     }
 
+    function processResourceGroup(node) {
+      result.push({
+        name: get('meta', 'title', 'content').from(node),
+        kind: SymbolKind.Namespace,
+        location: {
+          uri: null,
+          range: getRangeForNode(node),
+        },
+      });
+
+      node.content.forEach(section => {
+        if (section.element === 'resource') {
+          processResourceOrEndpoint(section);
+        }
+      });
+    }
+
+    function processResourceOrEndpoint(node) {
+      if (isNamedEndpoint(node)) {
+        processNamedEndpoint(node);
+      } else {
+        processResource(node);
+      }
+    }
+
+    function isNamedEndpoint(resource) {
+      if (resource.content.length !== 1) return false;
+      const transition = resource.content[0];
+
+      const resourceTitle = get('meta', 'title', 'content').from(resource);
+      const resourceHref = get('attributes', 'href', 'content').from(resource);
+      const transitionTitle = get('meta', 'title', 'content').from(transition);
+      const transitionHref = get('attributes', 'href', 'content').from(transition);
+
+      return resourceTitle === transitionTitle && resourceHref === transitionHref;
+    }
+
+    function processNamedEndpoint(node) {
+      const title = get('meta', 'title', 'content').from(node);
+      const transition = node.content[0];
+      const method = get('content', 0, 'attributes', 'method', 'content').from(getHTTPTransactions(transition)[0]);
+      const href = get('attributes', 'href', 'content').from(node);
+      const name = title ? `${title} [${method} ${href}]` : `${method} ${href}`;
+      result.push({
+        name,
+        kind: SymbolKind.Module,
+        location: {
+          uri: null,
+          range: getRangeForNode(node),
+        },
+      });
+
+      processTransition(transition);
+    }
+
+    function processResource(node) {
+      const title = get('meta', 'title', 'content').from(node);
+      const href = get('attributes', 'href', 'content').from(node);
+      const name = title ? `${title} [${href}]` : href;
+      result.push({
+        name,
+        kind: SymbolKind.Module,
+        location: {
+          uri: null,
+          range: getRangeForNode(node),
+        },
+      });
+
+      node.content.forEach(transition => processTransition(transition));
+    }
+
+    function processTransition(node) {
+      const requests = new Set();
+      const responses = new Set();
+
+      getHTTPTransactions(node).forEach(httpTransaction => {
+        httpTransaction.content.forEach(item => {
+          let processor;
+          let items;
+
+          if (item.element === 'httpRequest') {
+            processor = processRequest;
+            items = requests;
+          } else if (item.element === 'httpResponse') {
+            processor = processResponse;
+            items = responses;
+          } else {
+            return;
+          }
+
+
+          const sm = getSM(item);
+          if (!sm) return;
+          const itemSM = `${sm[0].content}-${sm[1].content}`;
+          if (items.has(itemSM)) return;
+
+          items.add(itemSM);
+          processor(item);
+        });
+      });
+    }
+
+    function processRequest(node) {
+      const name = `Request ${get('attributes', 'method', 'content').from(node)}`;
+      result.push({
+        name,
+        kind: SymbolKind.Method,
+        location: {
+          uri: null,
+          range: getRangeForNode(node),
+        },
+      });
+    }
+
+    function processResponse(node) {
+      if (!belongsToCurrentFile(node, options, entryPath, textDocument)) return; // Resource Prototypes
+      const name = `Response ${get('attributes', 'statusCode', 'content').from(node)}`;
+      result.push({
+        name,
+        kind: SymbolKind.Method,
+        location: {
+          uri: null,
+          range: getRangeForNode(node),
+        },
+      });
+    }
+
     function getRangeForNode(node) {
-      const sm = get('attributes', 'sourceMap', 'content', 0, 'content', 0, 'content').from(node);
+      const sm = getSM(node);
       const start = sm[0].content;
       const length = sm[1].content;
 
@@ -69,6 +208,14 @@ class SymbolsProcessor {
       };
     }
   }
+}
+
+function getHTTPTransactions(node) {
+  return node.content.filter(item => item.element === 'httpTransaction');
+}
+
+function getSM(node) {
+  return get('attributes', 'sourceMap', 'content', 0, 'content', 0, 'content').from(node);
 }
 
 module.exports = SymbolsProcessor;
