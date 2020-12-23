@@ -110,6 +110,14 @@ class SymbolsProcessor {
         if (section.element === 'resource') {
           processResourceOrEndpoint(section);
         }
+
+        if (section.element === 'message') {
+          processMessage(section);
+        }
+
+        if (section.element === 'category' && get('meta', 'classes', 'content', 0, 'content').from(section) === 'subGroup') {
+          processSubGroup(section);
+        }
       });
     }
 
@@ -149,6 +157,34 @@ class SymbolsProcessor {
       });
 
       processTransition(transition);
+    }
+
+    function processSubGroup(node) {
+      result.push({
+        name: get('meta', 'title', 'content').from(node),
+        kind: SymbolKind.Module,
+        location: {
+          uri: null,
+          range: getRangeForNode(node),
+        },
+      });
+
+      node.content.forEach(message => {
+        if (message.element === 'message') {
+          processMessage(message);
+        }
+      });
+    }
+
+    function processMessage(node) {
+      result.push({
+        name: get('meta', 'title', 'content').from(node),
+        kind: SymbolKind.Method,
+        location: {
+          uri: null,
+          range: getRangeForNode(node),
+        },
+      });
     }
 
     function processResource(node) {
