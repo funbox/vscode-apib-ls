@@ -183,7 +183,7 @@ class SymbolsProcessor {
         },
       });
 
-      processTransition(transition);
+      processTransitionContents(transition);
     }
 
     function processSubGroup(node) {
@@ -231,6 +231,27 @@ class SymbolsProcessor {
     }
 
     function processTransition(node) {
+      const title = get('meta', 'title', 'content').from(node);
+      const href = get('attributes', 'href', 'content').from(node);
+      const method = get('content', 0, 'attributes', 'method', 'content').from(getHTTPTransactions(node)[0]);
+
+      let name = method;
+      if (href) name = `${name} ${href}`;
+      if (title) name = `${title} [${name}]`;
+
+      result.push({
+        name,
+        kind: SymbolKind.Module,
+        location: {
+          uri: null,
+          range: getRangeForNode(node),
+        },
+      });
+
+      processTransitionContents(node);
+    }
+
+    function processTransitionContents(node) {
       const requests = new Set();
       const responses = new Set();
 
