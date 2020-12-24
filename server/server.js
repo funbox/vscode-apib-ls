@@ -16,6 +16,7 @@ const {
 
 const SymbolsProcessor = require('./SymbolsProcessor');
 const DocumentValidator = require('./DocumentValidator');
+const TypeDefinitionProvider = require('./TypeDefinitionProvider');
 
 const defaultSettings = { entryPoint: 'doc.apib' };
 
@@ -37,6 +38,7 @@ const connection = serverState.connection;
 
 const symbolsProcessor = new SymbolsProcessor(serverState);
 const documentValidator = new DocumentValidator(serverState);
+const typeDefinitionProvider = new TypeDefinitionProvider(serverState);
 
 connection.onInitialize((params) => {
   const capabilities = params.capabilities;
@@ -53,6 +55,7 @@ connection.onInitialize((params) => {
     capabilities: {
       textDocumentSync: TextDocumentSyncKind.Incremental,
       documentSymbolProvider: true,
+      typeDefinitionProvider: true,
     },
   };
   if (serverState.hasWorkspaceFolderCapability) {
@@ -107,6 +110,7 @@ serverState.documents.onDidChangeContent(change => {
 });
 
 connection.onDocumentSymbol(symbolParam => symbolsProcessor.generateSymbols(symbolParam));
+connection.onTypeDefinition(param => typeDefinitionProvider.getDefinitionLocation(param));
 
 connection.onDidChangeWatchedFiles(() => {
   // Monitored files have change in VSCode

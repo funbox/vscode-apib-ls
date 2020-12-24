@@ -84,8 +84,26 @@ function readFile(documents, file) {
   return fs.promises.readFile(file, { encoding: 'utf-8' });
 }
 
+function getRangeForNode(node, textDocument, documentBuffer) {
+  const sm = getSM(node);
+  const start = sm[0].content;
+  const length = sm[1].content;
+
+  // TODO length - 1 баг или нет?
+  return {
+    start: textDocument.positionAt(documentBuffer.slice(0, start).toString().length),
+    end: textDocument.positionAt(documentBuffer.slice(0, start + length - 1).toString().length),
+  };
+}
+
+function getSM(node) {
+  return get('attributes', 'sourceMap', 'content', 0, 'content', 0, 'content').from(node);
+}
+
 module.exports = {
   get,
   belongsToCurrentFile,
   calculateCrafterParams,
+  getRangeForNode,
+  getSM,
 };

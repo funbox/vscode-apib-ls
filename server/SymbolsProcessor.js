@@ -6,6 +6,8 @@ const {
   get,
   belongsToCurrentFile,
   calculateCrafterParams,
+  getRangeForNode,
+  getSM,
 } = require('./utils');
 
 class SymbolsProcessor {
@@ -57,7 +59,7 @@ class SymbolsProcessor {
         kind: SymbolKind.Namespace,
         location: {
           uri: null,
-          range: getRangeForNode(node),
+          range: getRangeForNode(node, textDocument, currentDocumentBuffer),
         },
       });
 
@@ -70,7 +72,7 @@ class SymbolsProcessor {
         kind: SymbolKind.Class,
         location: {
           uri: null,
-          range: getRangeForNode(node),
+          range: getRangeForNode(node, textDocument, currentDocumentBuffer),
         },
       });
     }
@@ -81,7 +83,7 @@ class SymbolsProcessor {
         kind: SymbolKind.Namespace,
         location: {
           uri: null,
-          range: getRangeForNode(node),
+          range: getRangeForNode(node, textDocument, currentDocumentBuffer),
         },
       });
 
@@ -94,7 +96,7 @@ class SymbolsProcessor {
         kind: SymbolKind.Class,
         location: {
           uri: null,
-          range: getRangeForNode(node),
+          range: getRangeForNode(node, textDocument, currentDocumentBuffer),
         },
       });
     }
@@ -105,7 +107,7 @@ class SymbolsProcessor {
         kind: SymbolKind.Namespace,
         location: {
           uri: null,
-          range: getRangeForNode(node),
+          range: getRangeForNode(node, textDocument, currentDocumentBuffer),
         },
       });
 
@@ -118,7 +120,7 @@ class SymbolsProcessor {
         kind: SymbolKind.Class,
         location: {
           uri: null,
-          range: getRangeForNode(node),
+          range: getRangeForNode(node, textDocument, currentDocumentBuffer),
         },
       });
     }
@@ -129,7 +131,7 @@ class SymbolsProcessor {
         kind: SymbolKind.Namespace,
         location: {
           uri: null,
-          range: getRangeForNode(node),
+          range: getRangeForNode(node, textDocument, currentDocumentBuffer),
         },
       });
 
@@ -179,7 +181,7 @@ class SymbolsProcessor {
         kind: SymbolKind.Module,
         location: {
           uri: null,
-          range: getRangeForNode(node),
+          range: getRangeForNode(node, textDocument, currentDocumentBuffer),
         },
       });
 
@@ -192,7 +194,7 @@ class SymbolsProcessor {
         kind: SymbolKind.Module,
         location: {
           uri: null,
-          range: getRangeForNode(node),
+          range: getRangeForNode(node, textDocument, currentDocumentBuffer),
         },
       });
 
@@ -209,7 +211,7 @@ class SymbolsProcessor {
         kind: SymbolKind.Method,
         location: {
           uri: null,
-          range: getRangeForNode(node),
+          range: getRangeForNode(node, textDocument, currentDocumentBuffer),
         },
       });
     }
@@ -223,7 +225,7 @@ class SymbolsProcessor {
         kind: SymbolKind.Module,
         location: {
           uri: null,
-          range: getRangeForNode(node),
+          range: getRangeForNode(node, textDocument, currentDocumentBuffer),
         },
       });
 
@@ -244,7 +246,7 @@ class SymbolsProcessor {
         kind: SymbolKind.Module,
         location: {
           uri: null,
-          range: getRangeForNode(node),
+          range: getRangeForNode(node, textDocument, currentDocumentBuffer),
         },
       });
 
@@ -289,7 +291,7 @@ class SymbolsProcessor {
         kind: SymbolKind.Method,
         location: {
           uri: null,
-          range: getRangeForNode(node),
+          range: getRangeForNode(node, textDocument, currentDocumentBuffer),
         },
       });
     }
@@ -302,31 +304,15 @@ class SymbolsProcessor {
         kind: SymbolKind.Method,
         location: {
           uri: null,
-          range: getRangeForNode(node),
+          range: getRangeForNode(node, textDocument, currentDocumentBuffer),
         },
       });
-    }
-
-    function getRangeForNode(node) {
-      const sm = getSM(node);
-      const start = sm[0].content;
-      const length = sm[1].content;
-
-      // TODO length - 1 баг или нет?
-      return {
-        start: textDocument.positionAt(currentDocumentBuffer.slice(0, start).toString().length),
-        end: textDocument.positionAt(currentDocumentBuffer.slice(0, start + length - 1).toString().length),
-      };
     }
   }
 }
 
 function getHTTPTransactions(node) {
   return node.content.filter(item => item.element === 'httpTransaction');
-}
-
-function getSM(node) {
-  return get('attributes', 'sourceMap', 'content', 0, 'content', 0, 'content').from(node);
 }
 
 module.exports = SymbolsProcessor;
