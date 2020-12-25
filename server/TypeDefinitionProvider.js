@@ -2,9 +2,6 @@ const path = require('path');
 const fs = require('fs');
 const crafter = require('@funbox/crafter');
 const {
-  TextDocument,
-} = require('vscode-languageserver-textdocument');
-const {
   get,
   calculateCrafterParams,
   getRangeForNode,
@@ -17,9 +14,24 @@ class TypeDefinitionProvider {
 
   async getDefinitionLocation(typeParam) {
     const textDocument = this.serverState.documents.get(typeParam.textDocument.uri);
-    const pos = getPosInBytes(textDocument.getText(), typeParam.position);
+    const offset = getPosInBytes(textDocument.getText(), typeParam.position);
 
     const { text, options, entryPath } = await calculateCrafterParams(textDocument, this.serverState);
+
+    let file;
+
+    if ((new URL(typeParam.textDocument.uri)).pathname !== entryPath) {
+      file = (new URL(typeParam.textDocument.uri)).pathname;
+
+      let entryDir = options.entryDir;
+      if (entryDir[entryDir.length - 1] !== '/') entryDir = `${entryDir}/`;
+      if (file.indexOf(entryDir) === 0) {
+        file = file.replace(entryDir, '');
+      }
+    }
+
+    const pos = { offset, file };
+
     const refract = (await crafter.parse(text, options))[0].toRefract(true);
     await this.extractNamedTypes(refract.content[0], options.entryDir, entryPath);
 
@@ -29,7 +41,7 @@ class TypeDefinitionProvider {
   async extractNamedTypes(rootNode, entryDir, entryPath) {
     this.namedTypes = new Map();
 
-    const files = new Map();
+    const buffers = new Map();
 
     for (let i = 0; i < rootNode.content.length; i++) {
       const node = rootNode.content[i];
@@ -45,25 +57,22 @@ class TypeDefinitionProvider {
             let buffer;
             let textDocument;
 
-            if (files.has(uri)) {
-              const data = files.get(uri);
-              buffer = data.buffer;
-              textDocument = data.textDocument;
+            if (buffers.has(uri)) {
+              buffer = buffers.get(uri);
             } else if (this.serverState.documents.get(uri)) {
               textDocument = this.serverState.documents.get(uri);
               buffer = Buffer.from(textDocument.getText());
-              files.set(uri, { buffer, textDocument });
+              buffers.set(uri, buffer);
             } else {
               // eslint-disable-next-line no-await-in-loop
               buffer = await fs.promises.readFile(filePath);
-              textDocument = new TextDocument(uri, 'text', 1, buffer.toString());
-              files.set(uri, { buffer, textDocument });
+              buffers.set(uri, buffer);
             }
 
             const name = get('content', 'meta', 'id', 'content').from(namedType);
             const location = {
               uri,
-              range: getRangeForNode(namedType, textDocument, buffer),
+              range: getRangeForNode(namedType, buffer),
             };
             this.namedTypes.set(name, location);
           }
@@ -162,11 +171,13 @@ function getPosInBytes(text, pos) {
 
 function positionBelongsToNode(pos, node) {
   const sm = get('attributes', 'sourceMap', 'content').from(node);
-  return sm && !!sm.find(({ content: blockContent }) => {
+  return sm && !!sm.find(({ file, content: blockContent }) => {
+    if (file !== pos.file) return false;
+
     const item = blockContent.find(({ content: itemContent }) => {
       const start = itemContent[0].content;
       const length = itemContent[1].content;
-      return start <= pos && start + length >= pos;
+      return start <= pos.offset && start + length >= pos.offset;
     });
     return !!item;
   });

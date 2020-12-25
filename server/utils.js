@@ -84,16 +84,34 @@ function readFile(documents, file) {
   return fs.promises.readFile(file, { encoding: 'utf-8' });
 }
 
-function getRangeForNode(node, textDocument, documentBuffer) {
+function getRangeForNode(node, documentBuffer) {
   const sm = getSM(node);
   const start = sm[0].content;
   const length = sm[1].content;
 
+
   // TODO length - 1 баг или нет?
   return {
-    start: textDocument.positionAt(documentBuffer.slice(0, start).toString().length),
-    end: textDocument.positionAt(documentBuffer.slice(0, start + length - 1).toString().length),
+    start: positionAt(start, documentBuffer),
+    end: positionAt(start + length - 1, documentBuffer),
   };
+}
+
+function positionAt(offset, buffer) {
+  const text = buffer.slice(0, offset).toString();
+  let line = 0;
+  let character = 0;
+
+  for (let i = 0; i < text.length; i++) {
+    if (text[i] === '\n') {
+      line++;
+      character = 0;
+    } else {
+      character++;
+    }
+  }
+
+  return { line, character };
 }
 
 function getSM(node) {

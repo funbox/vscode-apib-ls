@@ -59,7 +59,7 @@ class SymbolsProcessor {
         kind: SymbolKind.Namespace,
         location: {
           uri: null,
-          range: getRangeForNode(node, textDocument, currentDocumentBuffer),
+          range: getRangeForNode(node, currentDocumentBuffer),
         },
       });
 
@@ -72,7 +72,7 @@ class SymbolsProcessor {
         kind: SymbolKind.Class,
         location: {
           uri: null,
-          range: getRangeForNode(node, textDocument, currentDocumentBuffer),
+          range: getRangeForNode(node, currentDocumentBuffer),
         },
       });
     }
@@ -83,7 +83,7 @@ class SymbolsProcessor {
         kind: SymbolKind.Namespace,
         location: {
           uri: null,
-          range: getRangeForNode(node, textDocument, currentDocumentBuffer),
+          range: getRangeForNode(node, currentDocumentBuffer),
         },
       });
 
@@ -96,7 +96,7 @@ class SymbolsProcessor {
         kind: SymbolKind.Class,
         location: {
           uri: null,
-          range: getRangeForNode(node, textDocument, currentDocumentBuffer),
+          range: getRangeForNode(node, currentDocumentBuffer),
         },
       });
     }
@@ -107,7 +107,7 @@ class SymbolsProcessor {
         kind: SymbolKind.Namespace,
         location: {
           uri: null,
-          range: getRangeForNode(node, textDocument, currentDocumentBuffer),
+          range: getRangeForNode(node, currentDocumentBuffer),
         },
       });
 
@@ -120,7 +120,7 @@ class SymbolsProcessor {
         kind: SymbolKind.Class,
         location: {
           uri: null,
-          range: getRangeForNode(node, textDocument, currentDocumentBuffer),
+          range: getRangeForNode(node, currentDocumentBuffer),
         },
       });
     }
@@ -131,7 +131,7 @@ class SymbolsProcessor {
         kind: SymbolKind.Namespace,
         location: {
           uri: null,
-          range: getRangeForNode(node, textDocument, currentDocumentBuffer),
+          range: getRangeForNode(node, currentDocumentBuffer),
         },
       });
 
@@ -181,7 +181,7 @@ class SymbolsProcessor {
         kind: SymbolKind.Module,
         location: {
           uri: null,
-          range: getRangeForNode(node, textDocument, currentDocumentBuffer),
+          range: getRangeForNode(node, currentDocumentBuffer),
         },
       });
 
@@ -194,7 +194,7 @@ class SymbolsProcessor {
         kind: SymbolKind.Module,
         location: {
           uri: null,
-          range: getRangeForNode(node, textDocument, currentDocumentBuffer),
+          range: getRangeForNode(node, currentDocumentBuffer),
         },
       });
 
@@ -211,7 +211,7 @@ class SymbolsProcessor {
         kind: SymbolKind.Method,
         location: {
           uri: null,
-          range: getRangeForNode(node, textDocument, currentDocumentBuffer),
+          range: getRangeForNode(node, currentDocumentBuffer),
         },
       });
     }
@@ -225,7 +225,7 @@ class SymbolsProcessor {
         kind: SymbolKind.Module,
         location: {
           uri: null,
-          range: getRangeForNode(node, textDocument, currentDocumentBuffer),
+          range: getRangeForNode(node, currentDocumentBuffer),
         },
       });
 
@@ -246,7 +246,7 @@ class SymbolsProcessor {
         kind: SymbolKind.Module,
         location: {
           uri: null,
-          range: getRangeForNode(node, textDocument, currentDocumentBuffer),
+          range: getRangeForNode(node, currentDocumentBuffer),
         },
       });
 
@@ -291,7 +291,7 @@ class SymbolsProcessor {
         kind: SymbolKind.Method,
         location: {
           uri: null,
-          range: getRangeForNode(node, textDocument, currentDocumentBuffer),
+          range: getRangeForNode(node, currentDocumentBuffer),
         },
       });
     }
@@ -304,7 +304,7 @@ class SymbolsProcessor {
         kind: SymbolKind.Method,
         location: {
           uri: null,
-          range: getRangeForNode(node, textDocument, currentDocumentBuffer),
+          range: getRangeForNode(node, currentDocumentBuffer),
         },
       });
     }
