@@ -92,6 +92,10 @@ class TypeDefinitionProvider {
       if (categoryClass === 'resourceGroup') {
         return this.getDefinitionLocationFromResourceGroup(pos, nodeForPosition);
       }
+
+      if (categoryClass === 'dataStructures') {
+        return this.getDefinitionLocationFromDataStructures(pos, nodeForPosition);
+      }
     }
 
     if (nodeForPosition.element === 'resource') {
@@ -141,19 +145,33 @@ class TypeDefinitionProvider {
     return undefined;
   }
 
+  getDefinitionLocationFromDataStructures(pos, node) {
+    const nodeForPosition = node.content.find(n => positionBelongsToNode(pos, n));
+
+    if (nodeForPosition) {
+      return this.getDefinitionLocationFromDataStructure(pos, nodeForPosition.content);
+    }
+
+    return undefined;
+  }
+
   getDefinitionLocationFromDataStructure(pos, node) {
-    const element = node.element;
-    if (element === 'object') {
+    if (Array.isArray(node.content)) {
       const nodeForPosition = node.content.find(n => positionBelongsToNode(pos, n));
 
       if (nodeForPosition) {
-        const value = nodeForPosition.content.value;
-        if (positionBelongsToNode(pos, value)) {
-          return this.getDefinitionLocationFromDataStructure(pos, value);
+        if (nodeForPosition.element === 'member') {
+          const value = nodeForPosition.content.value;
+          if (positionBelongsToNode(pos, value)) {
+            return this.getDefinitionLocationFromDataStructure(pos, value);
+          }
+        } else {
+          return this.getDefinitionLocationFromDataStructure(pos, nodeForPosition);
         }
       }
     }
 
+    const element = node.element;
     if (this.namedTypes.has(element)) {
       return this.namedTypes.get(element);
     }
