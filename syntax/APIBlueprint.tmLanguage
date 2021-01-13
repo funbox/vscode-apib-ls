@@ -50,9 +50,9 @@
     </dict>
     <dict>
       <key>name</key>
-      <string>blueprint.response.json</string>
+      <string>blueprint.request.json</string>
       <key>begin</key>
-      <string>([-+*]) (?:([Rr]equest)|([Rr]esponse)) (?:(\d+)|([^\(]+))?(?: (\(.*\/+json(?:[ ;\/]+.*)?\)))+</string>
+      <string>^([-+*]) ([Rr]equest)(\s+([^\]\[\(\)]+))?(\s*\(([^\)]*)json\))$</string>
       <key>end</key>
       <string>^(?=\S)</string>
       <key>beginCaptures</key>
@@ -65,24 +65,14 @@
         <key>2</key>
         <dict>
           <key>name</key>
-          <string>markup.heading.markdown punctuation.definition.heading.bold</string>
+          <string>constant.numeric</string>
         </dict>
         <key>3</key>
-        <dict>
-          <key>name</key>
-          <string>markup.italic.markdown</string>
-        </dict>
-        <key>4</key>
         <dict>
           <key>name</key>
           <string>constant.numeric</string>
         </dict>
         <key>5</key>
-        <dict>
-          <key>name</key>
-          <string>keyword.other</string>
-        </dict>
-        <key>6</key>
         <dict>
           <key>name</key>
           <string>variable.language.fenced.markdown</string>
@@ -123,17 +113,13 @@
           <key>include</key>
           <string>#response-unstyled-section</string>
         </dict>
-        <dict>
-          <key>include</key>
-          <string>source.js</string>
-        </dict>
       </array>
     </dict>
     <dict>
       <key>name</key>
-      <string>blueprint.response.xml</string>
+      <string>blueprint.request.xml</string>
       <key>begin</key>
-      <string>([-+*]) ([Rr]equest|[Rr]esponse) (\d+)?(?: (\(.*\/+xml(?:[ ;\/]+.*)?\)))+</string>
+      <string>^([-+*]) ([Rr]equest)(\s+([^\]\[\(\)]+))?(\s*\(([^\)]*)xml\))$</string>
       <key>end</key>
       <string>^(?=\S)</string>
       <key>beginCaptures</key>
@@ -143,12 +129,17 @@
           <key>name</key>
           <string>variable.unordered.list.gfm</string>
         </dict>
+        <key>2</key>
+        <dict>
+          <key>name</key>
+          <string>constant.numeric</string>
+        </dict>
         <key>3</key>
         <dict>
           <key>name</key>
           <string>constant.numeric</string>
         </dict>
-        <key>4</key>
+        <key>5</key>
         <dict>
           <key>name</key>
           <string>variable.language.fenced.markdown</string>
@@ -188,10 +179,6 @@
         <dict>
           <key>include</key>
           <string>#response-unstyled-section</string>
-        </dict>
-        <dict>
-          <key>include</key>
-          <string>text.xml</string>
         </dict>
       </array>
     </dict>
@@ -243,9 +230,9 @@
     </dict>
     <dict>
       <key>name</key>
-      <string>blueprint.response</string>
+      <string>blueprint.response.json</string>
       <key>begin</key>
-      <string>([-+*]) ([Rr]equest|[Rr]esponse) ?(\d+)?(?: (\(.*\))+)?</string>
+      <string>^([-+*]) ([Rr]esponse)(\s+(\d+))?(\s*\(([^\)]*)json\))$</string>
       <key>end</key>
       <string>^(?=\S)</string>
       <key>beginCaptures</key>
@@ -255,12 +242,155 @@
           <key>name</key>
           <string>variable.unordered.list.gfm</string>
         </dict>
+        <key>2</key>
+        <dict>
+          <key>name</key>
+          <string>constant.numeric</string>
+        </dict>
         <key>3</key>
         <dict>
           <key>name</key>
           <string>constant.numeric</string>
         </dict>
-        <key>4</key>
+        <key>5</key>
+        <dict>
+          <key>name</key>
+          <string>variable.language.fenced.markdown</string>
+        </dict>
+      </dict>
+      <key>patterns</key>
+      <array>
+        <dict>
+          <key>include</key>
+          <string>#http-headers</string>
+        </dict>
+        <dict>
+          <key>include</key>
+          <string>#mson-block</string>
+        </dict>
+        <dict>
+          <key>begin</key>
+          <string>([-+*]) [Bb]ody</string>
+          <key>end</key>
+          <string>^(?=(?=\S)|(?=\s+\+))</string>
+          <key>beginCaptures</key>
+          <dict>
+            <key>1</key>
+            <dict>
+              <key>name</key>
+              <string>variable.unordered.list.gfm</string>
+            </dict>
+          </dict>
+          <key>patterns</key>
+          <array>
+            <dict>
+              <key>include</key>
+              <string>source.js</string>
+            </dict>
+          </array>
+        </dict>
+        <dict>
+          <key>include</key>
+          <string>#response-unstyled-section</string>
+        </dict>
+        <dict>
+          <key>include</key>
+          <string>source.js</string>
+        </dict>
+      </array>
+    </dict>
+    <dict>
+      <key>name</key>
+      <string>blueprint.response.xml</string>
+      <key>begin</key>
+      <string>^([-+*]) ([Rr]esponse)(\s+(\d+))?(\s*\(([^\)]*)xml\))$</string>
+      <key>end</key>
+      <string>^(?=\S)</string>
+      <key>beginCaptures</key>
+      <dict>
+        <key>1</key>
+        <dict>
+          <key>name</key>
+          <string>variable.unordered.list.gfm</string>
+        </dict>
+        <key>2</key>
+        <dict>
+          <key>name</key>
+          <string>constant.numeric</string>
+        </dict>
+        <key>3</key>
+        <dict>
+          <key>name</key>
+          <string>constant.numeric</string>
+        </dict>
+        <key>5</key>
+        <dict>
+          <key>name</key>
+          <string>variable.language.fenced.markdown</string>
+        </dict>
+      </dict>
+      <key>patterns</key>
+      <array>
+        <dict>
+          <key>include</key>
+          <string>#http-headers</string>
+        </dict>
+        <dict>
+          <key>include</key>
+          <string>#mson-block</string>
+        </dict>
+        <dict>
+          <key>begin</key>
+          <string>([-+*]) [Bb]ody</string>
+          <key>end</key>
+          <string>^(?=(?=\S)|(?=\s+\+))</string>
+          <key>beginCaptures</key>
+          <dict>
+            <key>1</key>
+            <dict>
+              <key>name</key>
+              <string>variable.unordered.list.gfm</string>
+            </dict>
+          </dict>
+          <key>patterns</key>
+          <array>
+            <dict>
+              <key>include</key>
+              <string>text.xml</string>
+            </dict>
+          </array>
+        </dict>
+        <dict>
+          <key>include</key>
+          <string>#response-unstyled-section</string>
+        </dict>
+      </array>
+    </dict>
+    <dict>
+      <key>name</key>
+      <string>blueprint.response</string>
+      <key>begin</key>
+      <string>^([-+*]) ([Rr]esponse)(\s+(\d+))?(\s*\(([^\)]*)\))?$</string>
+      <key>end</key>
+      <string>^(?=\S)</string>
+      <key>beginCaptures</key>
+      <dict>
+        <key>1</key>
+        <dict>
+          <key>name</key>
+          <string>variable.unordered.list.gfm</string>
+        </dict>
+        <key>2</key>
+        <dict>
+          <key>name</key>
+          <string>constant.numeric</string>
+        </dict>
+        <key>3</key>
+        <dict>
+          <key>name</key>
+          <string>constant.numeric</string>
+        </dict>
+        <key>5</key>
         <dict>
           <key>name</key>
           <string>variable.language.fenced.markdown</string>
