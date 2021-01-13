@@ -394,7 +394,7 @@
       <array>
         <dict>
           <key>begin</key>
-          <string>^(\s+)([-+*]) ([Pp]arameters)</string>
+          <string>^(\s*)([-+*]) ([Pp]arameters)</string>
           <key>end</key>
           <string>^(?!\1|\n)|(?=\1[-+*])</string>
           <key>beginCaptures</key>
@@ -402,7 +402,12 @@
             <key>2</key>
             <dict>
               <key>name</key>
-              <string>variable.unordered.list.gfm</string>
+              <string>variable.unordered.list.gfm hello-world</string>
+            </dict>
+            <key>3</key>
+            <dict>
+              <key>name</key>
+              <string>constant.numeric</string>
             </dict>
           </dict>
           <key>name</key>
