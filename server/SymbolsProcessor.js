@@ -20,6 +20,7 @@ class SymbolsProcessor {
     const currentDocumentBuffer = Buffer.from(textDocument.getText());
 
     const { text, options, entryPath } = await calculateCrafterParams(textDocument, this.serverState);
+    options.languageServerMode = true;
     const refract = (await crafter.parse(text, options))[0].toRefract(true);
 
     const result = [];

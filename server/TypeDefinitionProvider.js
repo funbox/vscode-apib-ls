@@ -32,6 +32,7 @@ class TypeDefinitionProvider {
 
     const pos = { offset, file };
 
+    options.languageServerMode = true;
     const refract = (await crafter.parse(text, options))[0].toRefract(true);
     await this.extractNamedTypes(refract.content[0], options.entryDir, entryPath);
 
