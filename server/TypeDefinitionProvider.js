@@ -107,7 +107,7 @@ class TypeDefinitionProvider {
   getDefinitionLocationFromResourceGroup(pos, node) {
     const nodeForPosition = node.content.find(n => positionBelongsToNode(pos, n));
 
-    if (nodeForPosition.element === 'resource') {
+    if (nodeForPosition && nodeForPosition.element === 'resource') {
       return this.getDefinitionLocationFromResource(pos, nodeForPosition);
     }
 
@@ -138,7 +138,7 @@ class TypeDefinitionProvider {
   getDefinitionLocationFromRequestOrResponse(pos, node) {
     const nodeForPosition = node.content.find(n => positionBelongsToNode(pos, n));
 
-    if (nodeForPosition.element === 'dataStructure') {
+    if (nodeForPosition && nodeForPosition.element === 'dataStructure') {
       return this.getDefinitionLocationFromDataStructure(pos, nodeForPosition.content);
     }
 
