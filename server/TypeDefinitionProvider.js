@@ -192,12 +192,11 @@ function positionBelongsToNode(pos, node) {
   return sm && !!sm.find(({ file, content: blockContent }) => {
     if (file !== pos.file) return false;
 
-    const item = blockContent.find(({ content: itemContent }) => {
+    return blockContent.some(({ content: itemContent }) => {
       const start = itemContent[0].content;
       const length = itemContent[1].content;
       return start <= pos.offset && start + length >= pos.offset;
     });
-    return !!item;
   });
 }
 
