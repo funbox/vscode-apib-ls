@@ -44,6 +44,32 @@ class TypeDefinitionProvider {
 
     const buffers = new Map();
 
+    const extractNamedType = async (typeNode, typeContentNode) => {
+      const fileName = get('attributes', 'sourceMap', 'content', 0, 'file').from(typeNode);
+      const filePath = fileName ? path.join(entryDir, fileName) : entryPath;
+      const uri = `file://${filePath}`;
+      let buffer;
+      let textDocument;
+
+      if (buffers.has(uri)) {
+        buffer = buffers.get(uri);
+      } else if (this.serverState.documents.get(uri)) {
+        textDocument = this.serverState.documents.get(uri);
+        buffer = Buffer.from(textDocument.getText());
+        buffers.set(uri, buffer);
+      } else {
+        buffer = await fs.promises.readFile(filePath);
+        buffers.set(uri, buffer);
+      }
+
+      const name = get('meta', 'id', 'content').from(typeContentNode);
+      const location = {
+        uri,
+        range: getRangeForNode(typeNode, buffer),
+      };
+      this.namedTypes.set(name, location);
+    };
+
     for (let i = 0; i < rootNode.content.length; i++) {
       const node = rootNode.content[i];
 
@@ -52,29 +78,14 @@ class TypeDefinitionProvider {
         if (categoryClass === 'dataStructures') {
           for (let j = 0; j < node.content.length; j++) {
             const namedType = node.content[j];
-            const fileName = get('attributes', 'sourceMap', 'content', 0, 'file').from(node);
-            const filePath = fileName ? path.join(entryDir, fileName) : entryPath;
-            const uri = `file://${filePath}`;
-            let buffer;
-            let textDocument;
+            await extractNamedType(namedType, namedType.content);
+          }
+        }
 
-            if (buffers.has(uri)) {
-              buffer = buffers.get(uri);
-            } else if (this.serverState.documents.get(uri)) {
-              textDocument = this.serverState.documents.get(uri);
-              buffer = Buffer.from(textDocument.getText());
-              buffers.set(uri, buffer);
-            } else {
-              buffer = await fs.promises.readFile(filePath);
-              buffers.set(uri, buffer);
-            }
-
-            const name = get('content', 'meta', 'id', 'content').from(namedType);
-            const location = {
-              uri,
-              range: getRangeForNode(namedType, buffer),
-            };
-            this.namedTypes.set(name, location);
+        if (categoryClass === 'schemaStructures') {
+          for (let j = 0; j < node.content.length; j++) {
+            const schemaType = node.content[j];
+            await extractNamedType(schemaType, schemaType);
           }
         }
       }
