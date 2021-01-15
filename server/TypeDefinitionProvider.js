@@ -165,6 +165,8 @@ class TypeDefinitionProvider {
           if (positionBelongsToNode(pos, value)) {
             return this.getDefinitionLocationFromDataStructure(pos, value);
           }
+        } else if (nodeForPosition.element === 'ref') {
+          return this.namedTypes.get(nodeForPosition.content);
         } else {
           return this.getDefinitionLocationFromDataStructure(pos, nodeForPosition);
         }
