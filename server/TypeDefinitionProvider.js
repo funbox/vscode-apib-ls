@@ -65,7 +65,6 @@ class TypeDefinitionProvider {
               buffer = Buffer.from(textDocument.getText());
               buffers.set(uri, buffer);
             } else {
-              // eslint-disable-next-line no-await-in-loop
               buffer = await fs.promises.readFile(filePath);
               buffers.set(uri, buffer);
             }
