@@ -8,52 +8,52 @@ function get(...p) {
 }
 
 function belongsToCurrentFile(node, crafterOptions, entryPath, textDocument) {
-  const textDocumentPath = (new URL(textDocument.uri)).pathname;
+  const textDocumentURI = DocumentURI.createFromURI(textDocument.uri);
   const file = get('attributes', 'sourceMap', 'content', 0, 'file').from(node);
-  return (file ? path.join(crafterOptions.entryDir, file) : entryPath) === textDocumentPath;
+  entryPath = path.normalize(entryPath);
+  return (file ? path.join(crafterOptions.entryDir, file) : entryPath) === path.normalize(textDocumentURI.path);
 }
 
 async function calculateCrafterParams(textDocument, serverState) {
   const defaultCrafterParams = getDefaultCrafterParams(textDocument, serverState);
   const options = defaultCrafterParams.options;
   let text = defaultCrafterParams.text;
-  let entryPath = (new URL(textDocument.uri)).pathname;
+  let entryDocumentURI = DocumentURI.createFromURI(textDocument.uri);
 
   if (serverState.rootURI) {
-    const uri = new URL(serverState.rootURI);
+    const rootURI = DocumentURI.createFromURI(serverState.rootURI);
 
-    if (uri.protocol === 'file:' && entryPath.indexOf(uri.pathname) === 0) {
-      const p = await rootDocPath(textDocument, serverState);
-      const doc = serverState.documents.get(`file://${p}`);
+    if (rootURI && entryDocumentURI.uri.indexOf(rootURI.uri) === 0) {
+      const rootDocURI = await getRootDocURI(textDocument, serverState);
+      const doc = serverState.documents.get(rootDocURI.uri);
       if (doc) {
         text = doc.getText();
-        entryPath = (new URL(doc.uri)).pathname;
+        entryDocumentURI = rootDocURI;
       } else {
         try {
-          text = await fs.promises.readFile(p, { encoding: 'utf8' });
-          entryPath = p;
+          text = await fs.promises.readFile(rootDocURI.path, { encoding: 'utf8' });
+          entryDocumentURI = rootDocURI;
         // eslint-disable-next-line no-empty
         } catch (e) {}
       }
     }
   }
 
-  options.entryDir = path.dirname(entryPath);
+  options.entryDir = path.dirname(entryDocumentURI.path);
 
-  return { text, options, entryPath };
+  return { text, options, entryPath: entryDocumentURI.path };
 }
 
-async function rootDocPath(textDocument, serverState) {
+async function getRootDocURI(textDocument, serverState) {
   const settings = await getDocumentSettings(textDocument.uri, serverState);
-  const uri = new URL(serverState.rootURI);
-  return path.join(uri.pathname, settings.entryPoint);
+  return DocumentURI.createFromURI(`${serverState.rootURI}/${settings.entryPoint}`);
 }
 
 function getDefaultCrafterParams(textDocument, serverState) {
   const options = { readFile: readFile.bind(null, serverState.documents) };
-  const documentURI = new URL(textDocument.uri);
-  if (documentURI.protocol === 'file:') {
-    options.entryDir = path.dirname(documentURI.pathname);
+  const documentURI = DocumentURI.createFromURI(textDocument.uri);
+  if (documentURI) {
+    options.entryDir = path.dirname(documentURI.path);
   }
 
   const text = textDocument.getText();
@@ -77,7 +77,8 @@ function getDocumentSettings(resource, serverState) {
 }
 
 function readFile(documents, file) {
-  const doc = documents.get(`file://${file}`);
+  const documentURI = DocumentURI.createFromPath(file);
+  const doc = documents.get(documentURI.uri);
   if (doc) {
     return doc.getText();
   }
@@ -118,10 +119,50 @@ function getSM(node) {
   return get('attributes', 'sourceMap', 'content', 0, 'content', 0, 'content').from(node);
 }
 
+class DocumentURI {
+  constructor() {
+    this.uri = null;
+    this.path = null;
+    this.protocol = null;
+  }
+
+  static createFromPath(documentPath) {
+    let uri = `file://${documentPath}`;
+
+    if (process.platform === 'win32') {
+      uri = `file:///${documentPath.split(path.sep).map(encodeURIComponent).join(path.posix.sep)}`;
+    }
+
+    const result = new this();
+    result.path = documentPath;
+    result.uri = uri;
+
+    return result;
+  }
+
+  static createFromURI(uri) {
+    const url = new URL(uri);
+
+    if (url.protocol !== 'file:') {
+      return null;
+    }
+
+    const result = new this();
+    result.uri = uri;
+    result.path = decodeURIComponent(url.pathname);
+    if (process.platform === 'win32' && result.path[0] === '/') {
+      result.path = result.path.slice(1);
+    }
+
+    return result;
+  }
+}
+
 module.exports = {
   get,
   belongsToCurrentFile,
   calculateCrafterParams,
   getRangeForNode,
   getSM,
+  DocumentURI,
 };

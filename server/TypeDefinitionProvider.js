@@ -5,6 +5,7 @@ const {
   get,
   calculateCrafterParams,
   getRangeForNode,
+  DocumentURI,
 } = require('./utils');
 
 class TypeDefinitionProvider {
@@ -20,8 +21,9 @@ class TypeDefinitionProvider {
 
     let file;
 
-    if ((new URL(typeParam.textDocument.uri)).pathname !== entryPath) {
-      file = (new URL(typeParam.textDocument.uri)).pathname;
+    const textDocumentURI = DocumentURI.createFromURI(typeParam.textDocument.uri);
+    if (textDocumentURI.path !== entryPath) {
+      file = textDocumentURI.path;
 
       let entryDir = options.entryDir;
       if (entryDir[entryDir.length - 1] !== '/') entryDir = `${entryDir}/`;
@@ -47,7 +49,7 @@ class TypeDefinitionProvider {
     const extractNamedType = async (typeNode, typeContentNode) => {
       const fileName = get('attributes', 'sourceMap', 'content', 0, 'file').from(typeNode);
       const filePath = fileName ? path.join(entryDir, fileName) : entryPath;
-      const uri = `file://${filePath}`;
+      const uri = DocumentURI.createFromPath(filePath).uri;
       let buffer;
       let textDocument;
 
