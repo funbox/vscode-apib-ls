@@ -43,10 +43,11 @@ class TypeDefinitionProvider {
 
   async extractNamedTypes(rootNode, entryDir, entryPath) {
     this.namedTypes = new Map();
+    this.resourcePrototypes = new Map();
 
     const buffers = new Map();
 
-    const extractNamedType = async (typeNode, typeContentNode) => {
+    const extractSymbol = async (typeNode, typeContentNode, symbols) => {
       const fileName = get('attributes', 'sourceMap', 'content', 0, 'file').from(typeNode);
       const filePath = fileName ? path.join(entryDir, fileName) : entryPath;
       const uri = DocumentURI.createFromPath(filePath).uri;
@@ -69,27 +70,42 @@ class TypeDefinitionProvider {
         uri,
         range: getRangeForNode(typeNode, buffer),
       };
-      this.namedTypes.set(name, location);
+      symbols.set(name, location);
     };
 
-    for (let i = 0; i < rootNode.content.length; i++) {
-      const node = rootNode.content[i];
-
+    await iterateNodeContents(rootNode, async (node) => {
       if (node.element === 'category') {
         const categoryClass = get('meta', 'classes', 'content', 0, 'content').from(node);
         if (categoryClass === 'dataStructures') {
-          for (let j = 0; j < node.content.length; j++) {
-            const namedType = node.content[j];
-            await extractNamedType(namedType, namedType.content);
-          }
+          await iterateNodeContents(node, namedType => extractSymbol(
+            namedType,
+            namedType.content,
+            this.namedTypes,
+          ));
         }
 
         if (categoryClass === 'schemaStructures') {
-          for (let j = 0; j < node.content.length; j++) {
-            const schemaType = node.content[j];
-            await extractNamedType(schemaType, schemaType);
-          }
+          await iterateNodeContents(node, schemaType => extractSymbol(
+            schemaType,
+            schemaType,
+            this.namedTypes,
+          ));
         }
+
+
+        if (categoryClass === 'resourcePrototypes') {
+          await iterateNodeContents(node, resourcePrototype => extractSymbol(
+            resourcePrototype,
+            resourcePrototype,
+            this.resourcePrototypes,
+          ));
+        }
+      }
+    });
+
+    async function iterateNodeContents(node, it) {
+      for (let j = 0; j < node.content.length; j++) {
+        await it(node.content[j]);
       }
     }
   }
@@ -109,6 +125,10 @@ class TypeDefinitionProvider {
       if (categoryClass === 'dataStructures') {
         return this.getDefinitionLocationFromDataStructures(pos, nodeForPosition);
       }
+
+      if (categoryClass === 'resourcePrototypes') {
+        return this.getDefinitionLocationFromResourcePrototypes(pos, nodeForPosition);
+      }
     }
 
     if (nodeForPosition.element === 'resource') {
@@ -123,6 +143,9 @@ class TypeDefinitionProvider {
     if (nodeForPosition && nodeForPosition.element === 'resource') {
       return this.getDefinitionLocationFromResource(pos, nodeForPosition);
     }
+
+    const prototype = this.getResourcePrototypeForNode(pos, node);
+    if (prototype) return prototype;
 
     return undefined;
   }
@@ -143,7 +166,13 @@ class TypeDefinitionProvider {
           }
         }
       }
+
+      const prototype = this.getResourcePrototypeForNode(pos, transitionNode);
+      if (prototype) return prototype;
     }
+
+    const prototype = this.getResourcePrototypeForNode(pos, node);
+    if (prototype) return prototype;
 
     return undefined;
   }
@@ -189,6 +218,30 @@ class TypeDefinitionProvider {
     const element = node.element;
     if (this.namedTypes.has(element)) {
       return this.namedTypes.get(element);
+    }
+
+    return undefined;
+  }
+
+  getDefinitionLocationFromResourcePrototypes(pos, node) {
+    for (let i = 0; i < node.content.length; i++) {
+      const prototypeNode = node.content[i];
+      const prototype = this.getResourcePrototypeForNode(pos, prototypeNode);
+      if (prototype) return prototype;
+    }
+
+    return undefined;
+  }
+
+  getResourcePrototypeForNode(pos, node) {
+    const prototypes = node.attributes.prototypes ? node.attributes.prototypes.content : [];
+    const prototypeForPosition = prototypes.find(p => positionBelongsToNode(pos, p));
+
+    if (prototypeForPosition) {
+      const prototypeName = prototypeForPosition.content;
+      if (this.resourcePrototypes.has(prototypeName)) {
+        return this.resourcePrototypes.get(prototypeName);
+      }
     }
 
     return undefined;
