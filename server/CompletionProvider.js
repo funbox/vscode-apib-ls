@@ -14,6 +14,7 @@ class CompletionProvider {
   async getCompletions(positionParam) {
     const textDocument = this.serverState.documents.get(positionParam.textDocument.uri);
     const offset = getPosInBytes(textDocument.getText(), positionParam.position);
+    const line = textDocument.getText().split('\n')[positionParam.position.line].slice(0, positionParam.position.character);
 
     const { text, options, entryPath } = await calculateCrafterParams(textDocument, this.serverState);
 
@@ -35,14 +36,10 @@ class CompletionProvider {
     options.languageServerMode = true;
     const refract = (await crafter.parse(text, options))[0].toRefract(true);
 
-    return this.getCompletionsFromRefract(pos, refract.content[0]);
+    return this.getCompletionsFromRefract(pos, refract.content[0], line);
   }
 
-  getCompletionsFromRefract(pos, rootNode) {
-    if (!positionBelongsToNode(pos, rootNode)) return undefined;
-
-    const nodeForPosition = rootNode.content.find(node => positionBelongsToNode(pos, node));
-
+  getCompletionsFromRefract(pos, rootNode, line) {
     const sectionNames = [
       'Data Structures',
       'Schema Structures',
@@ -51,10 +48,35 @@ class CompletionProvider {
       'Import',
     ];
 
+    const requestMethods = [
+      'GET',
+      'POST',
+      'PUT',
+      'DELETE',
+      'OPTIONS',
+      'PATCH',
+      'PROPPATCH',
+      'LOCK',
+      'UNLOCK',
+      'COPY',
+      'MOVE',
+      'MKCOL',
+      'HEAD',
+      'LINK',
+      'UNLINK',
+      'CONNECT',
+    ];
+
     const toItem = str => ({ label: str, kind: CompletionItemKind.Keyword });
 
+    if (!positionBelongsToNode(pos, rootNode)) {
+      return getCompletionsForString(line.replace(/^#+\s*/, '').toLocaleLowerCase());
+    }
+
+    const nodeForPosition = rootNode.content.find(node => positionBelongsToNode(pos, node));
+
     if (!nodeForPosition) {
-      return sectionNames.map(toItem);
+      return [...sectionNames, ...requestMethods].map(toItem);
     }
 
     if (nodeForPosition.element === 'copy') {
@@ -63,12 +85,16 @@ class CompletionProvider {
       const lines = Buffer.from(nodeForPosition.content).slice(0, itemOffset).toString().split('\n');
       const targetStr = lines[lines.length - 1].replace(/^#+\s*/, '').toLocaleLowerCase();
 
-      return sectionNames
-        .filter(sn => sn.toLocaleLowerCase().indexOf(targetStr) === 0)
-        .map(toItem);
+      return getCompletionsForString(targetStr);
     }
 
     return [];
+
+    function getCompletionsForString(str) {
+      return [...sectionNames, ...requestMethods]
+        .filter(sn => sn.toLocaleLowerCase().indexOf(str) === 0)
+        .map(toItem);
+    }
   }
 }
 
