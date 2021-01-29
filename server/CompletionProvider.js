@@ -43,13 +43,28 @@ class CompletionProvider {
 
     const nodeForPosition = rootNode.content.find(node => positionBelongsToNode(pos, node));
 
-    if (!nodeForPosition || nodeForPosition.element === 'copy' && nodeForPosition.content.split(/\s+|\n/).length === 2) {
-      return [
-        'Data Structures',
-        'Schema Structures',
-        'Resource Prototypes',
-        'Group',
-      ].map(i => ({ label: i, kind: CompletionItemKind.Keyword }));
+    const sectionNames = [
+      'Data Structures',
+      'Schema Structures',
+      'Resource Prototypes',
+      'Group',
+    ];
+
+    const toItem = str => ({ label: str, kind: CompletionItemKind.Keyword });
+
+    if (!nodeForPosition) {
+      return sectionNames.map(toItem);
+    }
+
+    if (nodeForPosition.element === 'copy') {
+      const sm = get('attributes', 'sourceMap', 'content').from(nodeForPosition);
+      const itemOffset = pos.offset - sm[0].content[0].content[0].content;
+      const lines = Buffer.from(nodeForPosition.content).slice(0, itemOffset).toString().split('\n');
+      const targetStr = lines[lines.length - 1].replace(/^#+\s*/, '').toLocaleLowerCase();
+
+      return sectionNames
+        .filter(sn => sn.toLocaleLowerCase().indexOf(targetStr) === 0)
+        .map(toItem);
     }
 
     return [];
