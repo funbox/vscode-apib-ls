@@ -48,6 +48,7 @@ class CompletionProvider {
       'Schema Structures',
       'Resource Prototypes',
       'Group',
+      'Import',
     ];
 
     const toItem = str => ({ label: str, kind: CompletionItemKind.Keyword });
