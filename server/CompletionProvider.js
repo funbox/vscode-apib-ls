@@ -91,9 +91,10 @@ class CompletionProvider {
     return [];
 
     function getCompletionsForString(str) {
-      return [...sectionNames, ...requestMethods]
-        .filter(sn => sn.toLocaleLowerCase().indexOf(str) === 0)
-        .map(toItem);
+      const strForMethod = str.replace(/^[^[]+\[/, '');
+      const sectionNamesResult = sectionNames.filter(i => i.toLocaleLowerCase().indexOf(str) === 0);
+      const requestMethodsResult = requestMethods.filter(i => i.toLocaleLowerCase().indexOf(strForMethod) === 0);
+      return [...sectionNamesResult, ...requestMethodsResult].map(toItem);
     }
   }
 }
