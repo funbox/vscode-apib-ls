@@ -40,62 +40,91 @@ class CompletionProvider {
   }
 
   getCompletionsFromRefract(pos, rootNode, line) {
-    const sectionNames = [
-      'Data Structures',
-      'Schema Structures',
-      'Resource Prototypes',
-      'Group',
-      'Import',
-    ];
+    let result = [];
 
-    const requestMethods = [
-      'GET',
-      'POST',
-      'PUT',
-      'DELETE',
-      'OPTIONS',
-      'PATCH',
-      'PROPPATCH',
-      'LOCK',
-      'UNLOCK',
-      'COPY',
-      'MOVE',
-      'MKCOL',
-      'HEAD',
-      'LINK',
-      'UNLINK',
-      'CONNECT',
-    ];
+    if (positionBelongsToNode(pos, rootNode)) {
+      const nodeForPosition = rootNode.content.find(node => positionBelongsToNode(pos, node));
 
-    const toItem = str => ({ label: str, kind: CompletionItemKind.Keyword });
-
-    if (!positionBelongsToNode(pos, rootNode)) {
-      return getCompletionsForString(line.replace(/^#+\s*/, '').toLocaleLowerCase());
+      if (nodeForPosition && nodeForPosition.element === 'resource') {
+        result = result.concat(this.getCompletionsFromResource(pos, nodeForPosition, line));
+      }
     }
 
-    const nodeForPosition = rootNode.content.find(node => positionBelongsToNode(pos, node));
+    result = result.concat(getSectionNamesComplitions());
+    result = result.concat(getRequestMethodsComplitions());
 
-    if (!nodeForPosition) {
-      return [...sectionNames, ...requestMethods].map(toItem);
+    return result;
+
+    function getSectionNamesComplitions() {
+      const sectionNames = [
+        'Data Structures',
+        'Schema Structures',
+        'Resource Prototypes',
+        'Group',
+        'Import',
+      ];
+
+      if (line[0] !== '#') return [];
+
+      const lineForCompletion = line.replace(/^#+\s*/, '').toLocaleLowerCase();
+
+      return sectionNames.filter(i => i.toLocaleLowerCase().indexOf(lineForCompletion) === 0).map(toItem);
     }
 
-    if (nodeForPosition.element === 'copy') {
-      const sm = get('attributes', 'sourceMap', 'content').from(nodeForPosition);
-      const itemOffset = pos.offset - sm[0].content[0].content[0].content;
-      const lines = Buffer.from(nodeForPosition.content).slice(0, itemOffset).toString().split('\n');
-      const targetStr = lines[lines.length - 1].replace(/^#+\s*/, '').toLocaleLowerCase();
+    function getRequestMethodsComplitions() {
+      const requestMethods = [
+        'GET',
+        'POST',
+        'PUT',
+        'DELETE',
+        'OPTIONS',
+        'PATCH',
+        'PROPPATCH',
+        'LOCK',
+        'UNLOCK',
+        'COPY',
+        'MOVE',
+        'MKCOL',
+        'HEAD',
+        'LINK',
+        'UNLINK',
+        'CONNECT',
+      ];
 
-      return getCompletionsForString(targetStr);
+      if (line[0] !== '#') return [];
+
+      // Two complition options are possible:
+      // # GET /foo
+      // # Users [GET /foo]
+
+      const lineForCompletion = line.replace(/^#+\s*/, '').replace(/^[^[]+\[/, '').toLocaleLowerCase();
+      return requestMethods.filter(i => i.toLocaleLowerCase().indexOf(lineForCompletion) === 0).map(toItem);
+    }
+  }
+
+  getCompletionsFromResource(pos, node, line) {
+    const nodeForPosition = node.content.find(n => positionBelongsToNode(pos, n));
+
+    if (nodeForPosition.element === 'transition') {
+      return this.getCompletionsFromTransition(pos, nodeForPosition, line);
     }
 
     return [];
+  }
 
-    function getCompletionsForString(str) {
-      const strForMethod = str.replace(/^[^[]+\[/, '');
-      const sectionNamesResult = sectionNames.filter(i => i.toLocaleLowerCase().indexOf(str) === 0);
-      const requestMethodsResult = requestMethods.filter(i => i.toLocaleLowerCase().indexOf(strForMethod) === 0);
-      return [...sectionNamesResult, ...requestMethodsResult].map(toItem);
+  getCompletionsFromTransition(pos, node, line) {
+    const sectionNames = [
+      'Request',
+      'Response',
+    ];
+
+    if (line[0] !== '+') {
+      return [];
     }
+
+    const lineForCompletion = line.replace(/^\+\s*/, '').toLocaleLowerCase();
+
+    return sectionNames.filter(i => i.toLocaleLowerCase().indexOf(lineForCompletion) === 0).map(toItem);
   }
 }
 
@@ -117,6 +146,10 @@ function positionBelongsToNode(pos, node) {
       return start <= pos.offset && start + length >= pos.offset;
     });
   });
+}
+
+function toItem(str) {
+  return { label: str, kind: CompletionItemKind.Keyword };
 }
 
 module.exports = CompletionProvider;
