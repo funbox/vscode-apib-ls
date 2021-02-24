@@ -105,11 +105,22 @@ class CompletionProvider {
   getCompletionsFromResource(pos, node, line) {
     const nodeForPosition = node.content.find(n => positionBelongsToNode(pos, n));
 
+    const sectionNames = [
+      'Parameters',
+    ];
+
+    let result = [];
+
     if (nodeForPosition.element === 'transition') {
-      return this.getCompletionsFromTransition(pos, nodeForPosition, line);
+      result = result.concat(this.getCompletionsFromTransition(pos, nodeForPosition, line));
     }
 
-    return [];
+    if (line[0] === '+') {
+      const lineForCompletion = line.replace(/^\+\s*/, '').toLocaleLowerCase();
+      result = result.concat(sectionNames.filter(i => i.toLocaleLowerCase().indexOf(lineForCompletion) === 0).map(toItem));
+    }
+
+    return result;
   }
 
   getCompletionsFromTransition(pos, node, line) {
