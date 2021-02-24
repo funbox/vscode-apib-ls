@@ -111,7 +111,7 @@ class CompletionProvider {
 
     const nodeForPosition = node.content.find(n => positionBelongsToNode(pos, n));
 
-    if (nodeForPosition.element === 'transition') {
+    if (nodeForPosition && nodeForPosition.element === 'transition') {
       result = result.concat(this.getCompletionsFromTransition(pos, nodeForPosition, line));
     }
 
@@ -159,6 +159,12 @@ class CompletionProvider {
 
     let result = [];
 
+    const nodeForPosition = node.content.find(n => positionBelongsToNode(pos, n));
+
+    if (nodeForPosition && nodeForPosition.element === 'dataStructure') {
+      result = result.concat(this.getCompletionsFromDataStructure(pos, nodeForPosition, line));
+    }
+
     if (/\s+\+/.exec(line)) {
       const lineForCompletion = line.replace(/^\s+\+\s*/, '').toLocaleLowerCase();
 
@@ -166,6 +172,112 @@ class CompletionProvider {
     }
 
     return result;
+  }
+
+  getCompletionsFromDataStructure(pos, node, line) {
+    const typeAttributes = [
+      'required',
+      'fixed',
+      'fixed-type',
+      'optional',
+      'nullable',
+      'pattern',
+      'format',
+      'min-length',
+      'max-length',
+      'minimum',
+      'maximum',
+    ];
+
+    const defaultTypes = [
+      'string',
+      'number',
+      'boolean',
+      'file',
+      'object',
+      'array',
+      'enum',
+    ];
+
+    const preparedLine = line.replace(/^\+\s*/, '');
+    const lineForCompletion = getLineForCompletion(preparedLine);
+
+    let result = [];
+
+    result = result.concat(typeAttributes.filter(i => i.toLocaleLowerCase().indexOf(lineForCompletion) === 0).map(toItem));
+    result = result.concat(defaultTypes.filter(i => i.toLocaleLowerCase().indexOf(lineForCompletion) === 0).map(toItem));
+
+    return result;
+
+    function getLineForCompletion(signature) {
+      let i = 0;
+
+      while (i < signature.length) {
+        if (signature[i] === '`') {
+          const result = retrieveEscaped(signature, i);
+          if (result.result) {
+            signature = result.str;
+            i = 0;
+          } else {
+            i++;
+          }
+        } else if (
+          signature[i] === ':'
+          || signature[i] === '('
+          || signature[i] === '-'
+        ) {
+          break;
+        } else {
+          i++;
+        }
+      }
+
+      if (i === signature.length || signature[i] === '-') return null;
+
+      if (signature[i] === ':') {
+        i++;
+        while (i < signature.length) {
+          if (signature[i] === '`') {
+            const result = retrieveEscaped(signature, i);
+            if (result.result) {
+              signature = result.str;
+              i = 0;
+            } else if (result.escaped) {
+              signature = result.str;
+              i = 0;
+            } else {
+              i++;
+            }
+          } else if (
+            signature[i] === '('
+            || signature[i] === '-'
+          ) {
+            break;
+          } else {
+            i++;
+          }
+        }
+      }
+
+      if (i === signature.length || signature[i] === '-') return null;
+
+      // in attributes
+      let strForCompletion = '';
+      i++;
+
+      while (i < signature.length) {
+        if (signature[i] === ')') return null;
+        if (signature[i] === ',') {
+          strForCompletion = '';
+        } else {
+          strForCompletion += signature[i];
+        }
+
+        i++;
+      }
+
+      return strForCompletion.trim().toLocaleLowerCase();
+    }
   }
 }
 
@@ -191,6 +303,34 @@ function positionBelongsToNode(pos, node) {
 
 function toItem(str) {
   return { label: str, kind: CompletionItemKind.Keyword };
+}
+
+function retrieveEscaped(str, startPos) {
+  let levels = 0;
+  const escapeChar = str[startPos];
+
+  while (str[startPos + levels] === escapeChar) {
+    levels++;
+  }
+
+  const borderChars = str.substr(startPos, levels);
+  const endPos = str.substr(startPos + levels).indexOf(borderChars);
+
+  if (endPos === -1) {
+    return {
+      str: str.substr(levels),
+      result: '',
+      escaped: borderChars,
+    };
+  }
+
+  const result = str.substr(startPos, startPos + endPos + levels * 2);
+
+  return {
+    str: str.substr(startPos + result.length),
+    result,
+    escaped: str.substr(startPos, (levels - 1) * 2 + result.length),
+  };
 }
 
 module.exports = CompletionProvider;
