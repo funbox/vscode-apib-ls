@@ -103,13 +103,13 @@ class CompletionProvider {
   }
 
   getCompletionsFromResource(pos, node, line) {
-    const nodeForPosition = node.content.find(n => positionBelongsToNode(pos, n));
-
     const sectionNames = [
       'Parameters',
     ];
 
     let result = [];
+
+    const nodeForPosition = node.content.find(n => positionBelongsToNode(pos, n));
 
     if (nodeForPosition.element === 'transition') {
       result = result.concat(this.getCompletionsFromTransition(pos, nodeForPosition, line));
@@ -129,13 +129,43 @@ class CompletionProvider {
       'Response',
     ];
 
-    if (line[0] !== '+') {
-      return [];
+    let result = [];
+
+    // + Request does not generate httpTransaction, so auto completion wouldn't work without + Response
+    // httpTransaction has no sourceMap, so we need to check its content
+    const transactionNode = node.content.find(n => n.element === 'httpTransaction' && (positionBelongsToNode(pos, n.content[0]) || positionBelongsToNode(pos, n.content[1])));
+
+    if (transactionNode) {
+      const nodeForPosition = transactionNode.content.find(n => positionBelongsToNode(pos, n));
+
+      result = result.concat(this.getCompletionsFromRequestOrResponse(pos, nodeForPosition, line));
     }
 
-    const lineForCompletion = line.replace(/^\+\s*/, '').toLocaleLowerCase();
+    if (line[0] === '+') {
+      const lineForCompletion = line.replace(/^\+\s*/, '').toLocaleLowerCase();
 
-    return sectionNames.filter(i => i.toLocaleLowerCase().indexOf(lineForCompletion) === 0).map(toItem);
+      result = result.concat(sectionNames.filter(i => i.toLocaleLowerCase().indexOf(lineForCompletion) === 0).map(toItem));
+    }
+
+    return result;
+  }
+
+  getCompletionsFromRequestOrResponse(pos, node, line) {
+    const sectionNames = [
+      'Attributes',
+      'Body',
+      'Schema',
+    ];
+
+    let result = [];
+
+    if (/\s+\+/.exec(line)) {
+      const lineForCompletion = line.replace(/^\s+\+\s*/, '').toLocaleLowerCase();
+
+      result = result.concat(sectionNames.filter(i => i.toLocaleLowerCase().indexOf(lineForCompletion) === 0).map(toItem));
+    }
+
+    return result;
   }
 }
 
