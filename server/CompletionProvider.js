@@ -212,6 +212,7 @@ class CompletionProvider {
     function getLineForCompletion(signature) {
       let i = 0;
 
+      // skip name
       while (i < signature.length) {
         if (signature[i] === '`') {
           const escapedResult = retrieveEscaped(signature, i);
@@ -234,6 +235,7 @@ class CompletionProvider {
 
       if (i === signature.length || signature[i] === '-') return null;
 
+      // skip description
       if (signature[i] === ':') {
         i++;
         while (i < signature.length) {
@@ -265,12 +267,25 @@ class CompletionProvider {
       let strForCompletion = '';
       i++;
 
+      let attributeValueContext = false;
+      let slashesNumber = 0;
+
       while (i < signature.length) {
-        if (signature[i] === ')') return null;
-        if (signature[i] === ',') {
+        if (signature[i] === ')' && !attributeValueContext) return null;
+        if (signature[i] === ',' && !attributeValueContext) {
           strForCompletion = '';
         } else {
           strForCompletion += signature[i];
+        }
+
+        if (signature[i] === '"' && slashesNumber % 2 === 0) {
+          attributeValueContext = !attributeValueContext;
+        }
+
+        if (signature[i] === '\\') {
+          slashesNumber++;
+        } else {
+          slashesNumber = 0;
         }
 
         i++;
