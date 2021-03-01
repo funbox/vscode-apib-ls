@@ -214,9 +214,9 @@ class CompletionProvider {
 
       while (i < signature.length) {
         if (signature[i] === '`') {
-          const result = retrieveEscaped(signature, i);
-          if (result.result) {
-            signature = result.str;
+          const escapedResult = retrieveEscaped(signature, i);
+          if (escapedResult.result) {
+            signature = escapedResult.str;
             i = 0;
           } else {
             i++;
@@ -238,12 +238,12 @@ class CompletionProvider {
         i++;
         while (i < signature.length) {
           if (signature[i] === '`') {
-            const result = retrieveEscaped(signature, i);
-            if (result.result) {
-              signature = result.str;
+            const escapedResult = retrieveEscaped(signature, i);
+            if (escapedResult.result) {
+              signature = escapedResult.str;
               i = 0;
-            } else if (result.escaped) {
-              signature = result.str;
+            } else if (escapedResult.escaped) {
+              signature = escapedResult.str;
               i = 0;
             } else {
               i++;
