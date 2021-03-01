@@ -200,11 +200,13 @@ class CompletionProvider {
     ];
 
     const preparedLine = line.replace(/^\+\s*/, '');
-    const lineForCompletion = getLineForCompletion(preparedLine);
+    const [lineForCompletion, inSubType] = getLineForCompletion(preparedLine);
 
     let result = [];
 
-    result = result.concat(typeAttributes.filter(i => i.toLocaleLowerCase().indexOf(lineForCompletion) === 0).map(toItem));
+    if (!inSubType) {
+      result = result.concat(typeAttributes.filter(i => i.toLocaleLowerCase().indexOf(lineForCompletion) === 0).map(toItem));
+    }
     result = result.concat(defaultTypes.filter(i => i.toLocaleLowerCase().indexOf(lineForCompletion) === 0).map(toItem));
 
     return result;
@@ -233,7 +235,7 @@ class CompletionProvider {
         }
       }
 
-      if (i === signature.length || signature[i] === '-') return null;
+      if (i === signature.length || signature[i] === '-') return [null, false];
 
       // skip description
       if (signature[i] === ':') {
@@ -261,18 +263,25 @@ class CompletionProvider {
         }
       }
 
-      if (i === signature.length || signature[i] === '-') return null;
+      if (i === signature.length || signature[i] === '-') return [null, false];
 
       // in attributes
       let strForCompletion = '';
       i++;
 
       let attributeValueContext = false;
+      let subTypeContext = false;
       let slashesNumber = 0;
 
       while (i < signature.length) {
-        if (signature[i] === ')' && !attributeValueContext) return null;
-        if (signature[i] === ',' && !attributeValueContext) {
+        if (signature[i] === ')' && !attributeValueContext) return [null, false];
+
+        if (signature[i] === '[' && !attributeValueContext) {
+          subTypeContext = true;
+          strForCompletion = '';
+        } else if (signature[i] === ']' && !attributeValueContext) {
+          subTypeContext = false;
+        } else if (signature[i] === ',' && !attributeValueContext) {
           strForCompletion = '';
         } else {
           strForCompletion += signature[i];
@@ -291,7 +300,7 @@ class CompletionProvider {
         i++;
       }
 
-      return strForCompletion.trim().toLocaleLowerCase();
+      return [strForCompletion.trim().toLocaleLowerCase(), subTypeContext];
     }
   }
 }
