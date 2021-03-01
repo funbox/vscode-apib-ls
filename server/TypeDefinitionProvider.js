@@ -1,11 +1,9 @@
-const path = require('path');
-const fs = require('fs');
 const crafter = require('@funbox/crafter');
 const {
   get,
   calculateCrafterParams,
-  getRangeForNode,
   DocumentURI,
+  extractSymbols,
 } = require('./utils');
 
 class TypeDefinitionProvider {
@@ -36,78 +34,11 @@ class TypeDefinitionProvider {
 
     options.languageServerMode = true;
     const refract = (await crafter.parse(text, options))[0].toRefract(true);
-    await this.extractNamedTypes(refract.content[0], options.entryDir, entryPath);
+    const symbols = await extractSymbols(refract.content[0], options.entryDir, entryPath, this.serverState);
+    this.namedTypes = symbols.namedTypes;
+    this.resourcePrototypes = symbols.resourcePrototypes;
 
     return this.getDefinitionLocationFromRefract(pos, refract.content[0]);
-  }
-
-  async extractNamedTypes(rootNode, entryDir, entryPath) {
-    this.namedTypes = new Map();
-    this.resourcePrototypes = new Map();
-
-    const buffers = new Map();
-
-    const extractSymbol = async (typeNode, typeContentNode, symbols) => {
-      const fileName = get('attributes', 'sourceMap', 'content', 0, 'file').from(typeNode);
-      const filePath = fileName ? path.join(entryDir, fileName) : entryPath;
-      const uri = DocumentURI.createFromPath(filePath).uri;
-      let buffer;
-      let textDocument;
-
-      if (buffers.has(uri)) {
-        buffer = buffers.get(uri);
-      } else if (this.serverState.documents.get(uri)) {
-        textDocument = this.serverState.documents.get(uri);
-        buffer = Buffer.from(textDocument.getText());
-        buffers.set(uri, buffer);
-      } else {
-        buffer = await fs.promises.readFile(filePath);
-        buffers.set(uri, buffer);
-      }
-
-      const name = get('meta', 'id', 'content').from(typeContentNode);
-      const location = {
-        uri,
-        range: getRangeForNode(typeNode, buffer),
-      };
-      symbols.set(name, location);
-    };
-
-    await iterateNodeContents(rootNode, async (node) => {
-      if (node.element === 'category') {
-        const categoryClass = get('meta', 'classes', 'content', 0, 'content').from(node);
-        if (categoryClass === 'dataStructures') {
-          await iterateNodeContents(node, namedType => extractSymbol(
-            namedType,
-            namedType.content,
-            this.namedTypes,
-          ));
-        }
-
-        if (categoryClass === 'schemaStructures') {
-          await iterateNodeContents(node, schemaType => extractSymbol(
-            schemaType,
-            schemaType,
-            this.namedTypes,
-          ));
-        }
-
-
-        if (categoryClass === 'resourcePrototypes') {
-          await iterateNodeContents(node, resourcePrototype => extractSymbol(
-            resourcePrototype,
-            resourcePrototype,
-            this.resourcePrototypes,
-          ));
-        }
-      }
-    });
-
-    async function iterateNodeContents(node, it) {
-      for (let j = 0; j < node.content.length; j++) {
-        await it(node.content[j]);
-      }
-    }
   }
 
   getDefinitionLocationFromRefract(pos, rootNode) {

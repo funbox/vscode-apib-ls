@@ -158,6 +158,76 @@ class DocumentURI {
   }
 }
 
+async function extractSymbols(rootNode, entryDir, entryPath, serverState) {
+  const namedTypes = new Map();
+  const resourcePrototypes = new Map();
+
+  const buffers = new Map();
+
+  const extractSymbol = async (typeNode, typeContentNode, symbols) => {
+    const fileName = get('attributes', 'sourceMap', 'content', 0, 'file').from(typeNode);
+    const filePath = fileName ? path.join(entryDir, fileName) : entryPath;
+    const uri = DocumentURI.createFromPath(filePath).uri;
+    let buffer;
+    let textDocument;
+
+    if (buffers.has(uri)) {
+      buffer = buffers.get(uri);
+    } else if (serverState.documents.get(uri)) {
+      textDocument = serverState.documents.get(uri);
+      buffer = Buffer.from(textDocument.getText());
+      buffers.set(uri, buffer);
+    } else {
+      buffer = await fs.promises.readFile(filePath);
+      buffers.set(uri, buffer);
+    }
+
+    const name = get('meta', 'id', 'content').from(typeContentNode);
+    const location = {
+      uri,
+      range: getRangeForNode(typeNode, buffer),
+    };
+    symbols.set(name, location);
+  };
+
+  await iterateNodeContents(rootNode, async (node) => {
+    if (node.element === 'category') {
+      const categoryClass = get('meta', 'classes', 'content', 0, 'content').from(node);
+      if (categoryClass === 'dataStructures') {
+        await iterateNodeContents(node, namedType => extractSymbol(
+          namedType,
+          namedType.content,
+          namedTypes,
+        ));
+      }
+
+      if (categoryClass === 'schemaStructures') {
+        await iterateNodeContents(node, schemaType => extractSymbol(
+          schemaType,
+          schemaType,
+          namedTypes,
+        ));
+      }
+
+      if (categoryClass === 'resourcePrototypes') {
+        await iterateNodeContents(node, resourcePrototype => extractSymbol(
+          resourcePrototype,
+          resourcePrototype,
+          resourcePrototypes,
+        ));
+      }
+    }
+  });
+
+  return { namedTypes, resourcePrototypes };
+
+  async function iterateNodeContents(node, it) {
+    for (let j = 0; j < node.content.length; j++) {
+      await it(node.content[j]);
+    }
+  }
+}
+
 module.exports = {
   get,
   belongsToCurrentFile,
@@ -165,4 +235,5 @@ module.exports = {
   getRangeForNode,
   getSM,
   DocumentURI,
+  extractSymbols,
 };

@@ -4,6 +4,7 @@ const {
   get,
   calculateCrafterParams,
   DocumentURI,
+  extractSymbols,
 } = require('./utils');
 
 class CompletionProvider {
@@ -35,6 +36,8 @@ class CompletionProvider {
 
     options.languageServerMode = true;
     const refract = (await crafter.parse(text, options))[0].toRefract(true);
+    const symbols = await extractSymbols(refract.content[0], options.entryDir, entryPath, this.serverState);
+    this.namedTypes = Array.from(symbols.namedTypes.keys());
 
     return this.getCompletionsFromRefract(pos, refract.content[0], line);
   }
@@ -45,8 +48,15 @@ class CompletionProvider {
     if (positionBelongsToNode(pos, rootNode)) {
       const nodeForPosition = rootNode.content.find(node => positionBelongsToNode(pos, node));
 
-      if (nodeForPosition && nodeForPosition.element === 'resource') {
-        result = result.concat(this.getCompletionsFromResource(pos, nodeForPosition, line));
+      if (nodeForPosition) {
+        const categoryClass = get('meta', 'classes', 'content', 0, 'content').from(nodeForPosition);
+        if (categoryClass === 'resourceGroup') {
+          result = result.concat(this.getCompletionsFromResourceGroup(pos, nodeForPosition, line));
+        }
+
+        if (nodeForPosition.element === 'resource') {
+          result = result.concat(this.getCompletionsFromResource(pos, nodeForPosition, line));
+        }
       }
     }
 
@@ -100,6 +110,16 @@ class CompletionProvider {
       const lineForCompletion = line.replace(/^#+\s*/, '').replace(/^[^[]+\[/, '').toLocaleLowerCase();
       return requestMethods.filter(i => i.toLocaleLowerCase().indexOf(lineForCompletion) === 0).map(toItem);
     }
+  }
+
+  getCompletionsFromResourceGroup(pos, node, line) {
+    const nodeForPosition = node.content.find(n => positionBelongsToNode(pos, n));
+
+    if (nodeForPosition && nodeForPosition.element === 'resource') {
+      return this.getCompletionsFromResource(pos, nodeForPosition, line);
+    }
+
+    return [];
   }
 
   getCompletionsFromResource(pos, node, line) {
@@ -204,10 +224,13 @@ class CompletionProvider {
 
     let result = [];
 
-    if (!inSubType) {
-      result = result.concat(typeAttributes.filter(i => i.toLocaleLowerCase().indexOf(lineForCompletion) === 0).map(toItem));
+    if (lineForCompletion) {
+      if (!inSubType) {
+        result = result.concat(typeAttributes.filter(i => i.toLocaleLowerCase().indexOf(lineForCompletion) === 0).map(toItem));
+      }
+      result = result.concat(defaultTypes.filter(i => i.toLocaleLowerCase().indexOf(lineForCompletion) === 0).map(toItem));
+      result = result.concat(this.namedTypes.filter(i => i.toLocaleLowerCase().indexOf(lineForCompletion) === 0).map(toItem));
     }
-    result = result.concat(defaultTypes.filter(i => i.toLocaleLowerCase().indexOf(lineForCompletion) === 0).map(toItem));
 
     return result;
 
