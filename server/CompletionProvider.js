@@ -58,6 +58,10 @@ class CompletionProvider {
           if (categoryClass === 'dataStructures') {
             result = result.concat(this.getCompletionsFromDataStructures(pos, nodeForPosition, line));
           }
+
+          if (categoryClass === 'resourcePrototypes') {
+            result = result.concat(this.getCompletionsFromResourcePrototypes(pos, nodeForPosition, line));
+          }
         }
 
         if (nodeForPosition.element === 'resource') {
@@ -118,14 +122,36 @@ class CompletionProvider {
     }
   }
 
-  getCompletionsFromResourceGroup(pos, node, line) {
+  getCompletionsFromResourcePrototypes(pos, node, line) {
     const nodeForPosition = node.content.find(n => positionBelongsToNode(pos, n));
 
-    if (nodeForPosition && nodeForPosition.element === 'resource') {
-      return this.getCompletionsFromResource(pos, nodeForPosition, line);
+    if (nodeForPosition) {
+      return this.getCompletionsFromResourcePrototype(pos, nodeForPosition, line);
     }
 
     return [];
+  }
+
+  getCompletionsFromResourcePrototype(pos, node, line) {
+    const sectionNames = [
+      'Response',
+    ];
+
+    let result = [];
+
+    const nodeForPosition = node.content.find(n => n.element === 'httpResponse' && positionBelongsToNode(pos, n));
+
+    if (nodeForPosition) {
+      result = result.concat(this.getCompletionsFromRequestOrResponse(pos, nodeForPosition, line));
+    }
+
+    if (line[0] === '+') {
+      const lineForCompletion = line.replace(/^\+\s*/, '').toLocaleLowerCase();
+
+      result = result.concat(sectionNames.filter(i => i.toLocaleLowerCase().indexOf(lineForCompletion) === 0).map(toItem));
+    }
+
+    return result;
   }
 
   getCompletionsFromDataStructures(pos, node, line) {
