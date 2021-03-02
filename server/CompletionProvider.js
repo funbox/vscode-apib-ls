@@ -49,9 +49,15 @@ class CompletionProvider {
       const nodeForPosition = rootNode.content.find(node => positionBelongsToNode(pos, node));
 
       if (nodeForPosition) {
-        const categoryClass = get('meta', 'classes', 'content', 0, 'content').from(nodeForPosition);
-        if (categoryClass === 'resourceGroup') {
-          result = result.concat(this.getCompletionsFromResourceGroup(pos, nodeForPosition, line));
+        if (nodeForPosition.element === 'category') {
+          const categoryClass = get('meta', 'classes', 'content', 0, 'content').from(nodeForPosition);
+          if (categoryClass === 'resourceGroup') {
+            result = result.concat(this.getCompletionsFromResourceGroup(pos, nodeForPosition, line));
+          }
+
+          if (categoryClass === 'dataStructures') {
+            result = result.concat(this.getCompletionsFromDataStructures(pos, nodeForPosition, line));
+          }
         }
 
         if (nodeForPosition.element === 'resource') {
@@ -117,6 +123,16 @@ class CompletionProvider {
 
     if (nodeForPosition && nodeForPosition.element === 'resource') {
       return this.getCompletionsFromResource(pos, nodeForPosition, line);
+    }
+
+    return [];
+  }
+
+  getCompletionsFromDataStructures(pos, node, line) {
+    const nodeForPosition = node.content.find(n => positionBelongsToNode(pos, n));
+
+    if (nodeForPosition) {
+      return this.getCompletionsFromDataStructure(pos, nodeForPosition, line);
     }
 
     return [];
