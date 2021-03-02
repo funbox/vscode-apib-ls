@@ -211,6 +211,21 @@ class CompletionProvider {
   }
 
   getCompletionsFromDataStructure(pos, node, line) {
+    if (node.meta && node.meta.description && positionBelongsToNode(pos, node.meta.description)) return [];
+
+    if (node.content) {
+      if (Array.isArray(node.content)) {
+        const nodeForPosition = node.content.find(n => positionBelongsToNode(pos, n));
+
+        if (nodeForPosition) {
+          return this.getCompletionsFromDataStructure(pos, nodeForPosition, line);
+        }
+      } else if (positionBelongsToNode(pos, node.content)) {
+        return this.getCompletionsFromDataStructure(pos, node.content, line);
+      }
+    }
+
+
     const typeAttributes = [
       'required',
       'fixed',
