@@ -70,12 +70,12 @@ class CompletionProvider {
       }
     }
 
-    result = result.concat(getSectionNamesComplitions());
-    result = result.concat(getRequestMethodsComplitions());
+    result = result.concat(getSectionNamesCompletions());
+    result = result.concat(getRequestMethodsCompletions());
 
     return result;
 
-    function getSectionNamesComplitions() {
+    function getSectionNamesCompletions() {
       const sectionNames = [
         'Data Structures',
         'Schema Structures',
@@ -91,7 +91,7 @@ class CompletionProvider {
       return sectionNames.filter(i => i.toLocaleLowerCase().startsWith(lineForCompletion)).map(toItem);
     }
 
-    function getRequestMethodsComplitions() {
+    function getRequestMethodsCompletions() {
       const requestMethods = [
         'GET',
         'POST',
