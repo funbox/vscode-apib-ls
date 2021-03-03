@@ -27,7 +27,7 @@ class CompletionProvider {
 
       let entryDir = options.entryDir;
       if (entryDir[entryDir.length - 1] !== '/') entryDir = `${entryDir}/`;
-      if (file.indexOf(entryDir) === 0) {
+      if (file.startsWith(entryDir)) {
         file = file.replace(entryDir, '');
       }
     }
@@ -88,7 +88,7 @@ class CompletionProvider {
 
       const lineForCompletion = line.replace(/^#+\s*/, '').toLocaleLowerCase();
 
-      return sectionNames.filter(i => i.toLocaleLowerCase().indexOf(lineForCompletion) === 0).map(toItem);
+      return sectionNames.filter(i => i.toLocaleLowerCase().startsWith(lineForCompletion)).map(toItem);
     }
 
     function getRequestMethodsComplitions() {
@@ -118,7 +118,7 @@ class CompletionProvider {
       // # Users [GET /foo]
 
       const lineForCompletion = line.replace(/^#+\s*/, '').replace(/^[^[]+\[/, '').toLocaleLowerCase();
-      return requestMethods.filter(i => i.toLocaleLowerCase().indexOf(lineForCompletion) === 0).map(toItem);
+      return requestMethods.filter(i => i.toLocaleLowerCase().startsWith(lineForCompletion)).map(toItem);
     }
   }
 
@@ -148,7 +148,7 @@ class CompletionProvider {
     if (line[0] === '+') {
       const lineForCompletion = line.replace(/^\+\s*/, '').toLocaleLowerCase();
 
-      result = result.concat(sectionNames.filter(i => i.toLocaleLowerCase().indexOf(lineForCompletion) === 0).map(toItem));
+      result = result.concat(sectionNames.filter(i => i.toLocaleLowerCase().startsWith(lineForCompletion)).map(toItem));
     }
 
     return result;
@@ -179,7 +179,7 @@ class CompletionProvider {
 
     if (line[0] === '+') {
       const lineForCompletion = line.replace(/^\+\s*/, '').toLocaleLowerCase();
-      result = result.concat(sectionNames.filter(i => i.toLocaleLowerCase().indexOf(lineForCompletion) === 0).map(toItem));
+      result = result.concat(sectionNames.filter(i => i.toLocaleLowerCase().startsWith(lineForCompletion)).map(toItem));
     }
 
     return result;
@@ -206,7 +206,7 @@ class CompletionProvider {
     if (line[0] === '+') {
       const lineForCompletion = line.replace(/^\+\s*/, '').toLocaleLowerCase();
 
-      result = result.concat(sectionNames.filter(i => i.toLocaleLowerCase().indexOf(lineForCompletion) === 0).map(toItem));
+      result = result.concat(sectionNames.filter(i => i.toLocaleLowerCase().startsWith(lineForCompletion)).map(toItem));
     }
 
     return result;
@@ -230,7 +230,7 @@ class CompletionProvider {
     if (/\s+\+/.exec(line)) {
       const lineForCompletion = line.replace(/^\s+\+\s*/, '').toLocaleLowerCase();
 
-      result = result.concat(sectionNames.filter(i => i.toLocaleLowerCase().indexOf(lineForCompletion) === 0).map(toItem));
+      result = result.concat(sectionNames.filter(i => i.toLocaleLowerCase().startsWith(lineForCompletion)).map(toItem));
     }
 
     return result;
@@ -283,10 +283,10 @@ class CompletionProvider {
 
     if (lineForCompletion) {
       if (!inSubType) {
-        result = result.concat(typeAttributes.filter(i => i.toLocaleLowerCase().indexOf(lineForCompletion) === 0).map(toItem));
+        result = result.concat(typeAttributes.filter(i => i.toLocaleLowerCase().startsWith(lineForCompletion)).map(toItem));
       }
-      result = result.concat(defaultTypes.filter(i => i.toLocaleLowerCase().indexOf(lineForCompletion) === 0).map(toItem));
-      result = result.concat(this.namedTypes.filter(i => i.toLocaleLowerCase().indexOf(lineForCompletion) === 0).map(toItem));
+      result = result.concat(defaultTypes.filter(i => i.toLocaleLowerCase().startsWith(lineForCompletion)).map(toItem));
+      result = result.concat(this.namedTypes.filter(i => i.toLocaleLowerCase().startsWith(lineForCompletion)).map(toItem));
     }
 
     return result;
