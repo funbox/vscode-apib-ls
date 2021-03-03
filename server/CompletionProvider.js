@@ -7,7 +7,7 @@ const {
   extractSymbols,
 } = require('./utils');
 
-const HEADER_RE = /^#+\s*/;
+const HEADER_RE = /^\s*#+\s*/;
 const ROOT_LIST_ITEM_RE = /^\+\s*/;
 const INNER_LIST_ITEM_RE = /^\s+\+\s*/;
 const ACTION_TITLE_RE = /^[^[]+\[/;
@@ -93,7 +93,7 @@ class CompletionProvider {
         'Import',
       ];
 
-      if (line[0] !== '#') return [];
+      if (!HEADER_RE.exec(line)) return [];
 
       const lineToComplete = line.replace(HEADER_RE, '').toLocaleLowerCase();
 
