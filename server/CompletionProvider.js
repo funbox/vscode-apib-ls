@@ -54,23 +54,27 @@ class CompletionProvider {
       const nodeForPosition = rootNode.content.find(node => positionBelongsToNode(pos, node));
 
       if (nodeForPosition) {
-        if (nodeForPosition.element === 'category') {
-          const categoryClass = get('meta', 'classes', 'content', 0, 'content').from(nodeForPosition);
-          if (categoryClass === 'resourceGroup') {
-            result = result.concat(this.getCompletionsFromResourceGroup(pos, nodeForPosition, line));
+        switch (nodeForPosition.element) {
+          case 'category': {
+            const categoryClass = get('meta', 'classes', 'content', 0, 'content').from(nodeForPosition);
+            switch (categoryClass) {
+              case 'resourceGroup':
+                result = result.concat(this.getCompletionsFromResourceGroup(pos, nodeForPosition, line));
+                break;
+              case 'dataStructures':
+                result = result.concat(this.getCompletionsFromDataStructures(pos, nodeForPosition, line));
+                break;
+              case 'resourcePrototypes':
+                result = result.concat(this.getCompletionsFromResourcePrototypes(pos, nodeForPosition, line));
+                break;
+              // no default
+            }
+            break;
           }
-
-          if (categoryClass === 'dataStructures') {
-            result = result.concat(this.getCompletionsFromDataStructures(pos, nodeForPosition, line));
-          }
-
-          if (categoryClass === 'resourcePrototypes') {
-            result = result.concat(this.getCompletionsFromResourcePrototypes(pos, nodeForPosition, line));
-          }
-        }
-
-        if (nodeForPosition.element === 'resource') {
-          result = result.concat(this.getCompletionsFromResource(pos, nodeForPosition, line));
+          case 'resource':
+            result = result.concat(this.getCompletionsFromResource(pos, nodeForPosition, line));
+            break;
+          // no default
         }
       }
     }
