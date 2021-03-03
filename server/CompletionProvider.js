@@ -410,10 +410,6 @@ function positionBelongsToNode(pos, node) {
   });
 }
 
-function toItem(str) {
-  return { label: str, kind: CompletionItemKind.Keyword };
-}
-
 function retrieveEscaped(str, startPos) {
   let levels = 0;
   const escapeChar = str[startPos];
@@ -443,7 +439,9 @@ function retrieveEscaped(str, startPos) {
 }
 
 function getCompletionOptions(completionStrings, lineToComplete) {
-  return completionStrings.filter(i => i.toLocaleLowerCase().indexOf(lineToComplete) === 0).map(toItem);
+  return completionStrings
+    .filter(i => i.toLocaleLowerCase().indexOf(lineToComplete) === 0)
+    .map(str => ({ label: str, kind: CompletionItemKind.Keyword }));
 }
 
 module.exports = CompletionProvider;
