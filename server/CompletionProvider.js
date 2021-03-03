@@ -173,6 +173,16 @@ class CompletionProvider {
     return [];
   }
 
+  getCompletionsFromResourceGroup(pos, node, line) {
+    const nodeForPosition = node.content.find(n => positionBelongsToNode(pos, n));
+
+    if (nodeForPosition && nodeForPosition.element === 'resource') {
+      return this.getCompletionsFromResource(pos, nodeForPosition, line);
+    }
+
+    return [];
+  }
+
   getCompletionsFromResource(pos, node, line) {
     const sectionNames = [
       'Parameters',
