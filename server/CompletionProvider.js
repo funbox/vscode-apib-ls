@@ -93,7 +93,7 @@ class CompletionProvider {
 
       const lineToComplete = line.replace(HEADER_RE, '').toLocaleLowerCase();
 
-      return sectionNames.filter(i => i.toLocaleLowerCase().startsWith(lineToComplete)).map(toItem);
+      return getCompletionOptions(sectionNames, lineToComplete);
     }
 
     function getRequestMethodsCompletions() {
@@ -123,7 +123,7 @@ class CompletionProvider {
       // # Users [GET /foo]
 
       const lineToComplete = line.replace(HEADER_RE, '').replace(ACTION_TITLE_RE, '').toLocaleLowerCase();
-      return requestMethods.filter(i => i.toLocaleLowerCase().startsWith(lineToComplete)).map(toItem);
+      return getCompletionOptions(requestMethods, lineToComplete);
     }
   }
 
@@ -153,7 +153,7 @@ class CompletionProvider {
     if (line[0] === '+') {
       const lineToComplete = line.replace(ROOT_LIST_ITEM_RE, '').toLocaleLowerCase();
 
-      result = result.concat(sectionNames.filter(i => i.toLocaleLowerCase().startsWith(lineToComplete)).map(toItem));
+      result = result.concat(getCompletionOptions(sectionNames, lineToComplete));
     }
 
     return result;
@@ -184,7 +184,7 @@ class CompletionProvider {
 
     if (line[0] === '+') {
       const lineToComplete = line.replace(ROOT_LIST_ITEM_RE, '').toLocaleLowerCase();
-      result = result.concat(sectionNames.filter(i => i.toLocaleLowerCase().startsWith(lineToComplete)).map(toItem));
+      result = result.concat(getCompletionOptions(sectionNames, lineToComplete));
     }
 
     return result;
@@ -211,7 +211,7 @@ class CompletionProvider {
     if (line[0] === '+') {
       const lineToComplete = line.replace(ROOT_LIST_ITEM_RE, '').toLocaleLowerCase();
 
-      result = result.concat(sectionNames.filter(i => i.toLocaleLowerCase().startsWith(lineToComplete)).map(toItem));
+      result = result.concat(getCompletionOptions(sectionNames, lineToComplete));
     }
 
     return result;
@@ -235,7 +235,7 @@ class CompletionProvider {
     if (INNER_LIST_ITEM_RE.exec(line)) {
       const lineToComplete = line.replace(INNER_LIST_ITEM_RE, '').toLocaleLowerCase();
 
-      result = result.concat(sectionNames.filter(i => i.toLocaleLowerCase().startsWith(lineToComplete)).map(toItem));
+      result = result.concat(getCompletionOptions(sectionNames, lineToComplete));
     }
 
     return result;
@@ -288,10 +288,10 @@ class CompletionProvider {
 
     if (lineToComplete) {
       if (!inSubType) {
-        result = result.concat(typeAttributes.filter(i => i.toLocaleLowerCase().startsWith(lineToComplete)).map(toItem));
+        result = result.concat(getCompletionOptions(typeAttributes, lineToComplete));
       }
-      result = result.concat(defaultTypes.filter(i => i.toLocaleLowerCase().startsWith(lineToComplete)).map(toItem));
-      result = result.concat(this.namedTypes.filter(i => i.toLocaleLowerCase().startsWith(lineToComplete)).map(toItem));
+      result = result.concat(getCompletionOptions(defaultTypes, lineToComplete));
+      result = result.concat(getCompletionOptions(this.namedTypes, lineToComplete));
     }
 
     return result;
@@ -440,6 +440,10 @@ function retrieveEscaped(str, startPos) {
     result,
     escaped: str.substr(startPos, (levels - 1) * 2 + result.length),
   };
+}
+
+function getCompletionOptions(completionStrings, lineToComplete) {
+  return completionStrings.filter(i => i.toLocaleLowerCase().indexOf(lineToComplete) === 0).map(toItem);
 }
 
 module.exports = CompletionProvider;
