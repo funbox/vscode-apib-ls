@@ -7,6 +7,11 @@ const {
   extractSymbols,
 } = require('./utils');
 
+const HEADER_RE = /^#+\s*/;
+const ROOT_LIST_ITEM_RE = /^\+\s*/;
+const INNER_LIST_ITEM_RE = /^\s+\+\s*/;
+const ACTION_TITLE_RE = /^[^[]+\[/;
+
 class CompletionProvider {
   constructor(serverState) {
     this.serverState = serverState;
@@ -86,7 +91,7 @@ class CompletionProvider {
 
       if (line[0] !== '#') return [];
 
-      const lineToComplete = line.replace(/^#+\s*/, '').toLocaleLowerCase();
+      const lineToComplete = line.replace(HEADER_RE, '').toLocaleLowerCase();
 
       return sectionNames.filter(i => i.toLocaleLowerCase().startsWith(lineToComplete)).map(toItem);
     }
@@ -117,7 +122,7 @@ class CompletionProvider {
       // # GET /foo
       // # Users [GET /foo]
 
-      const lineToComplete = line.replace(/^#+\s*/, '').replace(/^[^[]+\[/, '').toLocaleLowerCase();
+      const lineToComplete = line.replace(HEADER_RE, '').replace(ACTION_TITLE_RE, '').toLocaleLowerCase();
       return requestMethods.filter(i => i.toLocaleLowerCase().startsWith(lineToComplete)).map(toItem);
     }
   }
@@ -146,7 +151,7 @@ class CompletionProvider {
     }
 
     if (line[0] === '+') {
-      const lineToComplete = line.replace(/^\+\s*/, '').toLocaleLowerCase();
+      const lineToComplete = line.replace(ROOT_LIST_ITEM_RE, '').toLocaleLowerCase();
 
       result = result.concat(sectionNames.filter(i => i.toLocaleLowerCase().startsWith(lineToComplete)).map(toItem));
     }
@@ -178,7 +183,7 @@ class CompletionProvider {
     }
 
     if (line[0] === '+') {
-      const lineToComplete = line.replace(/^\+\s*/, '').toLocaleLowerCase();
+      const lineToComplete = line.replace(ROOT_LIST_ITEM_RE, '').toLocaleLowerCase();
       result = result.concat(sectionNames.filter(i => i.toLocaleLowerCase().startsWith(lineToComplete)).map(toItem));
     }
 
@@ -204,7 +209,7 @@ class CompletionProvider {
     }
 
     if (line[0] === '+') {
-      const lineToComplete = line.replace(/^\+\s*/, '').toLocaleLowerCase();
+      const lineToComplete = line.replace(ROOT_LIST_ITEM_RE, '').toLocaleLowerCase();
 
       result = result.concat(sectionNames.filter(i => i.toLocaleLowerCase().startsWith(lineToComplete)).map(toItem));
     }
@@ -227,8 +232,8 @@ class CompletionProvider {
       result = result.concat(this.getCompletionsFromDataStructure(pos, nodeForPosition, line));
     }
 
-    if (/\s+\+/.exec(line)) {
-      const lineToComplete = line.replace(/^\s+\+\s*/, '').toLocaleLowerCase();
+    if (INNER_LIST_ITEM_RE.exec(line)) {
+      const lineToComplete = line.replace(INNER_LIST_ITEM_RE, '').toLocaleLowerCase();
 
       result = result.concat(sectionNames.filter(i => i.toLocaleLowerCase().startsWith(lineToComplete)).map(toItem));
     }
@@ -276,7 +281,7 @@ class CompletionProvider {
       'enum',
     ];
 
-    const preparedLine = line.replace(/^\+\s*/, '');
+    const preparedLine = line.replace(ROOT_LIST_ITEM_RE, '');
     const [lineToComplete, inSubType] = getLineToComplete(preparedLine);
 
     let result = [];
