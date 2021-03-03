@@ -86,9 +86,9 @@ class CompletionProvider {
 
       if (line[0] !== '#') return [];
 
-      const lineForCompletion = line.replace(/^#+\s*/, '').toLocaleLowerCase();
+      const lineToComplete = line.replace(/^#+\s*/, '').toLocaleLowerCase();
 
-      return sectionNames.filter(i => i.toLocaleLowerCase().startsWith(lineForCompletion)).map(toItem);
+      return sectionNames.filter(i => i.toLocaleLowerCase().startsWith(lineToComplete)).map(toItem);
     }
 
     function getRequestMethodsCompletions() {
@@ -117,8 +117,8 @@ class CompletionProvider {
       // # GET /foo
       // # Users [GET /foo]
 
-      const lineForCompletion = line.replace(/^#+\s*/, '').replace(/^[^[]+\[/, '').toLocaleLowerCase();
-      return requestMethods.filter(i => i.toLocaleLowerCase().startsWith(lineForCompletion)).map(toItem);
+      const lineToComplete = line.replace(/^#+\s*/, '').replace(/^[^[]+\[/, '').toLocaleLowerCase();
+      return requestMethods.filter(i => i.toLocaleLowerCase().startsWith(lineToComplete)).map(toItem);
     }
   }
 
@@ -146,9 +146,9 @@ class CompletionProvider {
     }
 
     if (line[0] === '+') {
-      const lineForCompletion = line.replace(/^\+\s*/, '').toLocaleLowerCase();
+      const lineToComplete = line.replace(/^\+\s*/, '').toLocaleLowerCase();
 
-      result = result.concat(sectionNames.filter(i => i.toLocaleLowerCase().startsWith(lineForCompletion)).map(toItem));
+      result = result.concat(sectionNames.filter(i => i.toLocaleLowerCase().startsWith(lineToComplete)).map(toItem));
     }
 
     return result;
@@ -178,8 +178,8 @@ class CompletionProvider {
     }
 
     if (line[0] === '+') {
-      const lineForCompletion = line.replace(/^\+\s*/, '').toLocaleLowerCase();
-      result = result.concat(sectionNames.filter(i => i.toLocaleLowerCase().startsWith(lineForCompletion)).map(toItem));
+      const lineToComplete = line.replace(/^\+\s*/, '').toLocaleLowerCase();
+      result = result.concat(sectionNames.filter(i => i.toLocaleLowerCase().startsWith(lineToComplete)).map(toItem));
     }
 
     return result;
@@ -204,9 +204,9 @@ class CompletionProvider {
     }
 
     if (line[0] === '+') {
-      const lineForCompletion = line.replace(/^\+\s*/, '').toLocaleLowerCase();
+      const lineToComplete = line.replace(/^\+\s*/, '').toLocaleLowerCase();
 
-      result = result.concat(sectionNames.filter(i => i.toLocaleLowerCase().startsWith(lineForCompletion)).map(toItem));
+      result = result.concat(sectionNames.filter(i => i.toLocaleLowerCase().startsWith(lineToComplete)).map(toItem));
     }
 
     return result;
@@ -228,9 +228,9 @@ class CompletionProvider {
     }
 
     if (/\s+\+/.exec(line)) {
-      const lineForCompletion = line.replace(/^\s+\+\s*/, '').toLocaleLowerCase();
+      const lineToComplete = line.replace(/^\s+\+\s*/, '').toLocaleLowerCase();
 
-      result = result.concat(sectionNames.filter(i => i.toLocaleLowerCase().startsWith(lineForCompletion)).map(toItem));
+      result = result.concat(sectionNames.filter(i => i.toLocaleLowerCase().startsWith(lineToComplete)).map(toItem));
     }
 
     return result;
@@ -277,21 +277,21 @@ class CompletionProvider {
     ];
 
     const preparedLine = line.replace(/^\+\s*/, '');
-    const [lineForCompletion, inSubType] = getLineForCompletion(preparedLine);
+    const [lineToComplete, inSubType] = getLineToComplete(preparedLine);
 
     let result = [];
 
-    if (lineForCompletion) {
+    if (lineToComplete) {
       if (!inSubType) {
-        result = result.concat(typeAttributes.filter(i => i.toLocaleLowerCase().startsWith(lineForCompletion)).map(toItem));
+        result = result.concat(typeAttributes.filter(i => i.toLocaleLowerCase().startsWith(lineToComplete)).map(toItem));
       }
-      result = result.concat(defaultTypes.filter(i => i.toLocaleLowerCase().startsWith(lineForCompletion)).map(toItem));
-      result = result.concat(this.namedTypes.filter(i => i.toLocaleLowerCase().startsWith(lineForCompletion)).map(toItem));
+      result = result.concat(defaultTypes.filter(i => i.toLocaleLowerCase().startsWith(lineToComplete)).map(toItem));
+      result = result.concat(this.namedTypes.filter(i => i.toLocaleLowerCase().startsWith(lineToComplete)).map(toItem));
     }
 
     return result;
 
-    function getLineForCompletion(signature) {
+    function getLineToComplete(signature) {
       let i = 0;
 
       // skip name
