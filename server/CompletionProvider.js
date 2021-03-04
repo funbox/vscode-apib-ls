@@ -5,6 +5,8 @@ const {
   calculateCrafterParams,
   DocumentURI,
   extractSymbols,
+  getPosInBytes,
+  positionBelongsToNode,
 } = require('./utils');
 
 const HEADER_RE = /^\s*#+\s*/;
@@ -402,26 +404,6 @@ class CompletionProvider {
       return [strForCompletion.trim().toLocaleLowerCase(), subTypeContext];
     }
   }
-}
-
-function getPosInBytes(text, pos) {
-  const origLines = text.split('\n');
-  const resLines = origLines.slice(0, pos.line);
-  resLines.push(origLines[pos.line].slice(0, pos.character));
-  return Buffer.from(resLines.join('\n')).length;
-}
-
-function positionBelongsToNode(pos, node) {
-  const sm = get('attributes', 'sourceMap', 'content').from(node);
-  return sm && sm.some(({ file, content: blockContent }) => {
-    if (file !== pos.file) return false;
-
-    return blockContent.some(({ content: itemContent }) => {
-      const start = itemContent[0].content;
-      const length = itemContent[1].content;
-      return start <= pos.offset && start + length >= pos.offset;
-    });
-  });
 }
 
 function retrieveEscaped(str, startPos) {
