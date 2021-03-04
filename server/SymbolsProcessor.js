@@ -117,7 +117,7 @@ class SymbolsProcessor {
 
     function processResourcePrototype(node) {
       result.push({
-        name: get('meta', 'title', 'content').from(node),
+        name: get('meta', 'id', 'content').from(node),
         kind: SymbolKind.Class,
         location: {
           uri: null,
@@ -230,7 +230,11 @@ class SymbolsProcessor {
         },
       });
 
-      node.content.forEach(transition => processTransition(transition));
+      node.content.forEach(transition => {
+        if (transition.element === 'transition') {
+          processTransition(transition);
+        }
+      });
     }
 
     function processTransition(node) {
