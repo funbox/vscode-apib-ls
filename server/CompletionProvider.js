@@ -285,6 +285,8 @@ class CompletionProvider {
       'max-length',
       'minimum',
       'maximum',
+      'default',
+      'sample',
     ];
 
     const defaultTypes = [
