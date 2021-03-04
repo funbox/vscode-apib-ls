@@ -124,7 +124,7 @@ class CompletionProvider {
 
       if (line[0] !== '#') return [];
 
-      // Two complition options are possible:
+      // Two completion options are possible:
       // # GET /foo
       // # Users [GET /foo]
 
