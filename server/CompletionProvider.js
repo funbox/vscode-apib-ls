@@ -413,7 +413,7 @@ function getPosInBytes(text, pos) {
 
 function positionBelongsToNode(pos, node) {
   const sm = get('attributes', 'sourceMap', 'content').from(node);
-  return sm && !!sm.find(({ file, content: blockContent }) => {
+  return sm && sm.some(({ file, content: blockContent }) => {
     if (file !== pos.file) return false;
 
     return blockContent.some(({ content: itemContent }) => {
