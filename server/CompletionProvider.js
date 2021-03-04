@@ -10,8 +10,8 @@ const {
 } = require('./utils');
 
 const HEADER_RE = /^\s*#+\s*/;
-const ROOT_LIST_ITEM_RE = /^\+\s*/;
-const INNER_LIST_ITEM_RE = /^\s+\+\s*/;
+const ROOT_LIST_ITEM_RE = /^[+-]\s*/;
+const INNER_LIST_ITEM_RE = /^\s+[+-]\s*/;
 const ACTION_TITLE_RE = /^[^[]+\[/;
 
 class CompletionProvider {
@@ -156,7 +156,7 @@ class CompletionProvider {
       result = result.concat(this.getCompletionsFromRequestOrResponse(pos, nodeForPosition, line));
     }
 
-    if (line[0] === '+') {
+    if (ROOT_LIST_ITEM_RE.test(line)) {
       const lineToComplete = line.replace(ROOT_LIST_ITEM_RE, '').toLocaleLowerCase();
 
       result = result.concat(getCompletionOptions(sectionNames, lineToComplete));
@@ -198,7 +198,7 @@ class CompletionProvider {
       result = result.concat(this.getCompletionsFromTransition(pos, nodeForPosition, line));
     }
 
-    if (line[0] === '+') {
+    if (ROOT_LIST_ITEM_RE.test(line)) {
       const lineToComplete = line.replace(ROOT_LIST_ITEM_RE, '').toLocaleLowerCase();
       result = result.concat(getCompletionOptions(sectionNames, lineToComplete));
     }
@@ -224,7 +224,7 @@ class CompletionProvider {
       result = result.concat(this.getCompletionsFromRequestOrResponse(pos, nodeForPosition, line));
     }
 
-    if (line[0] === '+') {
+    if (ROOT_LIST_ITEM_RE.test(line)) {
       const lineToComplete = line.replace(ROOT_LIST_ITEM_RE, '').toLocaleLowerCase();
 
       result = result.concat(getCompletionOptions(sectionNames, lineToComplete));
