@@ -270,6 +270,8 @@ class CompletionProvider {
         }
       } else if (positionBelongsToNode(pos, node.content)) {
         return this.getCompletionsFromDataStructure(pos, node.content, line);
+      } else if (node.element === 'member' && positionBelongsToNode(pos, node.content.value)) {
+        return this.getCompletionsFromDataStructure(pos, node.content.value, line);
       }
     }
 
