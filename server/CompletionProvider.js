@@ -10,6 +10,7 @@ const {
 } = require('./utils');
 
 const HEADER_RE = /^\s*#+\s*/;
+const LIST_ITEM_RE = /^\s*[+-]\s*/;
 const ROOT_LIST_ITEM_RE = /^[+-]\s*/;
 const INNER_LIST_ITEM_RE = /^\s+[+-]\s*/;
 const ACTION_TITLE_RE = /^[^[]+\[/;
@@ -299,7 +300,7 @@ class CompletionProvider {
       'enum',
     ];
 
-    const preparedLine = line.replace(ROOT_LIST_ITEM_RE, '');
+    const preparedLine = line.replace(LIST_ITEM_RE, '');
     const [lineToComplete, inSubType] = getLineToComplete(preparedLine);
 
     let result = [];
