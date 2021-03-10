@@ -12,9 +12,9 @@ describe('get', () => {
     const obj = {
       a: {
         b: {
-          c: 1
-        }
-      }
+          c: 1,
+        },
+      },
     };
 
     expect(get('a', 'b', 'c').from(obj)).eql(1);
@@ -24,9 +24,9 @@ describe('get', () => {
     const obj = {
       a: {
         b: {
-          c: 1
-        }
-      }
+          c: 1,
+        },
+      },
     };
 
     expect(get('a', 'b', 'd').from(obj)).eql(null);
