@@ -68,7 +68,8 @@
   },
   "scripts": {
     "postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "cd server && npm run dev",
+    "test": "cd server && npm test",
     "lint": "eslint --cache -c .eslintrc.js --ext .js ./"
   },
   "devDependencies": {
