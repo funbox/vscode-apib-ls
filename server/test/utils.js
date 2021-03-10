@@ -2,7 +2,36 @@ const path = require('path');
 const { expect } = require('chai');
 const sinon = require('sinon');
 
-const { DocumentURI } = require('../utils');
+const {
+  get,
+  DocumentURI,
+} = require('../utils');
+
+describe('get', () => {
+  it('should return value when it exists', () => {
+    const obj = {
+      a: {
+        b: {
+          c: 1
+        }
+      }
+    };
+
+    expect(get('a', 'b', 'c').from(obj)).eql(1);
+  });
+
+  it('should return null when value does not exist', () => {
+    const obj = {
+      a: {
+        b: {
+          c: 1
+        }
+      }
+    };
+
+    expect(get('a', 'b', 'd').from(obj)).eql(null);
+  });
+});
 
 describe('DocumentURI (win32)', () => {
   let stubs = [];
