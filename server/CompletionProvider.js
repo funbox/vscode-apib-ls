@@ -46,6 +46,7 @@ class CompletionProvider {
     const refract = (await crafter.parse(text, options))[0].toRefract(true);
     const symbols = await extractSymbols(refract.content[0], options.entryDir, entryPath, this.serverState);
     this.namedTypes = Array.from(symbols.namedTypes.keys());
+    this.resourcePrototypes = Array.from(symbols.resourcePrototypes.keys());
 
     return this.getCompletionsFromRefract(pos, refract.content[0], line);
   }
@@ -177,6 +178,16 @@ class CompletionProvider {
   }
 
   getCompletionsFromResourceGroup(pos, node, line) {
+    const prototypes = get('attributes', 'prototypes', 'content').from(node);
+
+    if (prototypes && prototypes.length) {
+      const attribute = prototypes.find(attr => positionBelongsToNode(pos, attr));
+
+      if (attribute) {
+        return getCompletionOptions(this.resourcePrototypes, attribute.content.toLocaleLowerCase());
+      }
+    }
+
     const nodeForPosition = node.content.find(n => positionBelongsToNode(pos, n));
 
     if (nodeForPosition && nodeForPosition.element === 'resource') {
