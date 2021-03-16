@@ -184,17 +184,7 @@ class CompletionProvider {
       return this.getCompletionsFromResource(pos, nodeForPosition, line);
     }
 
-    const prototypes = get('attributes', 'prototypes', 'content').from(node);
-
-    if (prototypes && prototypes.length) {
-      const attribute = prototypes.find(attr => positionBelongsToNode(pos, attr));
-
-      if (attribute) {
-        return getCompletionOptions(this.resourcePrototypes, attribute.content.toLocaleLowerCase());
-      }
-    }
-
-    return [];
+    return this.getCompletionsFromAttributesPrototypes(pos, node);
   }
 
   getCompletionsFromResource(pos, node, line) {
@@ -219,14 +209,10 @@ class CompletionProvider {
   }
 
   getCompletionsFromTransition(pos, node, line) {
-    const prototypes = get('attributes', 'prototypes', 'content').from(node);
+    const prototypes = this.getCompletionsFromAttributesPrototypes(pos, node);
 
-    if (prototypes && prototypes.length) {
-      const attribute = prototypes.find(attr => positionBelongsToNode(pos, attr));
-
-      if (attribute) {
-        return getCompletionOptions(this.resourcePrototypes, attribute.content.toLocaleLowerCase());
-      }
+    if (prototypes.length) {
+      return prototypes;
     }
 
     const sectionNames = [
@@ -253,6 +239,20 @@ class CompletionProvider {
     }
 
     return result;
+  }
+
+  getCompletionsFromAttributesPrototypes(pos, node) {
+    const prototypes = get('attributes', 'prototypes', 'content').from(node);
+
+    if (prototypes && prototypes.length) {
+      const attribute = prototypes.find(attr => positionBelongsToNode(pos, attr));
+
+      if (attribute) {
+        return getCompletionOptions(this.resourcePrototypes, attribute.content.toLocaleLowerCase());
+      }
+    }
+
+    return [];
   }
 
   getCompletionsFromRequestOrResponse(pos, node, line) {
