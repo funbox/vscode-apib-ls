@@ -178,6 +178,12 @@ class CompletionProvider {
   }
 
   getCompletionsFromResourceGroup(pos, node, line) {
+    const nodeForPosition = node.content.find(n => positionBelongsToNode(pos, n));
+
+    if (nodeForPosition && nodeForPosition.element === 'resource') {
+      return this.getCompletionsFromResource(pos, nodeForPosition, line);
+    }
+
     const prototypes = get('attributes', 'prototypes', 'content').from(node);
 
     if (prototypes && prototypes.length) {
@@ -186,12 +192,6 @@ class CompletionProvider {
       if (attribute) {
         return getCompletionOptions(this.resourcePrototypes, attribute.content.toLocaleLowerCase());
       }
-    }
-
-    const nodeForPosition = node.content.find(n => positionBelongsToNode(pos, n));
-
-    if (nodeForPosition && nodeForPosition.element === 'resource') {
-      return this.getCompletionsFromResource(pos, nodeForPosition, line);
     }
 
     return [];
@@ -219,6 +219,16 @@ class CompletionProvider {
   }
 
   getCompletionsFromTransition(pos, node, line) {
+    const prototypes = get('attributes', 'prototypes', 'content').from(node);
+
+    if (prototypes && prototypes.length) {
+      const attribute = prototypes.find(attr => positionBelongsToNode(pos, attr));
+
+      if (attribute) {
+        return getCompletionOptions(this.resourcePrototypes, attribute.content.toLocaleLowerCase());
+      }
+    }
+
     const sectionNames = [
       'Request',
       'Response',
