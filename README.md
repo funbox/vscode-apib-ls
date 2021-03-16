@@ -45,11 +45,11 @@ File -> Prefernces -> Settings -> Extensions -> API Blueprint -> Entry Point
 * в корневой директории выполнить команду `npm install`;
 * открыть VS Code;
 * переключиться в Debug viewlet;
-* запустить `Lanuch Client`;
+* запустить `Launch Client`;
 * открыть проект с APIB документацией или отдельный APIB-файл;
 * запустить `Attach to Server`.
 
-Вместо отдельных шагов `Lanuch Client` и `Attach to Server` можно использовать
+Вместо отдельных шагов `Launch Client` и `Attach to Server` можно использовать
 команду `Client + Server`, но тогда APIB-файл нужно открывать достаточно
 быстро, иначе команда `Attach to Server` завершится с ошибкой.
 
