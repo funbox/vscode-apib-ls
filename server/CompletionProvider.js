@@ -198,6 +198,8 @@ class CompletionProvider {
 
     if (nodeForPosition && nodeForPosition.element === 'transition') {
       result = result.concat(this.getCompletionsFromTransition(pos, nodeForPosition, line));
+    } else if (positionBelongsToNode(pos, node) && node.element === 'resource') {
+      result = result.concat(this.getCompletionsFromTransition(pos, node, line));
     }
 
     if (ROOT_LIST_ITEM_RE.test(line)) {
