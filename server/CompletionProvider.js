@@ -1,3 +1,5 @@
+const path = require('path');
+const fs = require('fs');
 const crafter = require('@funbox/crafter');
 const { CompletionItemKind } = require('vscode-languageserver');
 const {
@@ -14,6 +16,7 @@ const LIST_ITEM_RE = /^\s*[+-]\s*/;
 const ROOT_LIST_ITEM_RE = /^[+-]\s*/;
 const INNER_LIST_ITEM_RE = /^\s+[+-]\s*/;
 const ACTION_TITLE_RE = /^[^[]+\[/;
+const IMPORT_SECTION_RE = /^\s*#\s*[Ii]mport\s+/;
 
 class CompletionProvider {
   constructor(serverState) {
@@ -48,10 +51,12 @@ class CompletionProvider {
     this.namedTypes = Array.from(symbols.namedTypes.keys());
     this.resourcePrototypes = Array.from(symbols.resourcePrototypes.keys());
 
-    return this.getCompletionsFromRefract(pos, refract.content[0], line);
+    const completions = await this.getCompletionsFromRefract(pos, refract.content[0], line, options.entryDir);
+
+    return completions;
   }
 
-  getCompletionsFromRefract(pos, rootNode, line) {
+  async getCompletionsFromRefract(pos, rootNode, line, entryDir) {
     let result = [];
 
     if (positionBelongsToNode(pos, rootNode)) {
@@ -85,6 +90,11 @@ class CompletionProvider {
 
     result = result.concat(getSectionNamesCompletions());
     result = result.concat(getRequestMethodsCompletions());
+
+    if (IMPORT_SECTION_RE.exec(line)) {
+      const importSectionCompletions = await getImportSectionCompletions();
+      result = result.concat(importSectionCompletions);
+    }
 
     return result;
 
@@ -132,6 +142,21 @@ class CompletionProvider {
 
       const lineToComplete = line.replace(HEADER_RE, '').replace(ACTION_TITLE_RE, '').toLocaleLowerCase();
       return getCompletionOptions(requestMethods, lineToComplete);
+    }
+
+    async function getImportSectionCompletions() {
+      const importLine = line.replace(IMPORT_SECTION_RE, '').toLocaleLowerCase();
+
+      const fileDir = pos.file && !path.isAbsolute(importLine) ? getPath(pos.file) : '';
+      const importPath = getPath(importLine);
+
+      const fileNames = await fs.promises.readdir(path.join(entryDir, fileDir, importPath));
+
+      return getCompletionOptions(fileNames, importLine.split('/').pop());
+
+      function getPath(str) {
+        return str.split('/').slice(0, -1).join('/');
+      }
     }
   }
 
