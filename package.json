@@ -92,5 +92,8 @@
     "hooks": {
       "pre-commit": "lint-staged -q"
     }
+  },
+  "bin": {
+    "apibserver": "server/server.js"
   }
 }
