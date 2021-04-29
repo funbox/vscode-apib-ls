@@ -30,9 +30,12 @@ const serverState = {
   globalSettings: defaultSettings, // TODO clone?
   // Cache the settings of all open documents
   documentSettings: new Map(),
-  // Create a connection for the server, using Node's IPC as a transport.
-  // Also include all preview / proposed LSP features.
-  connection: createConnection(ProposedFeatures.all),
+  connection: process.argv.includes('--stdio')
+    // Create a connection for the server, using STDIO as a transport.
+    ? createConnection(process.stdin, process.stdout)
+    // Create a connection for the server, using Node's IPC as a transport.
+    // Also include all preview / proposed LSP features.
+    : createConnection(ProposedFeatures.all),
 };
 
 const connection = serverState.connection;
@@ -58,7 +61,9 @@ connection.onInitialize((params) => {
       textDocumentSync: TextDocumentSyncKind.Incremental,
       documentSymbolProvider: true,
       typeDefinitionProvider: true,
-      completionProvider: true,
+      completionProvider: {
+        resolveProvider: false,
+      },
     },
   };
   if (serverState.hasWorkspaceFolderCapability) {
