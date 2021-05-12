@@ -478,7 +478,7 @@ function retrieveEscaped(str, startPos) {
     };
   }
 
-  const result = str.substr(startPos, startPos + endPos + levels * 2);
+  const result = str.substr(startPos, endPos + levels * 2);
 
   return {
     str: str.substr(startPos + result.length),
