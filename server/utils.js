@@ -15,65 +15,19 @@ function belongsToCurrentFile(node, crafterOptions, entryPath, textDocument) {
 }
 
 async function calculateCrafterParams(textDocument, serverState) {
-  const defaultCrafterParams = getDefaultCrafterParams(textDocument, serverState);
-  const options = defaultCrafterParams.options;
-  let text = defaultCrafterParams.text;
-  let entryDocumentURI = DocumentURI.createFromURI(textDocument.uri);
-
-  if (serverState.rootURI) {
-    const rootURI = DocumentURI.createFromURI(serverState.rootURI);
-
-    if (rootURI && entryDocumentURI.uri.indexOf(rootURI.uri) === 0) {
-      const rootDocURI = await getRootDocURI(textDocument, serverState);
-      const doc = serverState.documents.get(rootDocURI.uri);
-      if (doc) {
-        text = doc.getText();
-        entryDocumentURI = rootDocURI;
-      } else {
-        try {
-          text = await fs.promises.readFile(rootDocURI.path, { encoding: 'utf8' });
-          entryDocumentURI = rootDocURI;
-        // eslint-disable-next-line no-empty
-        } catch (e) {}
-      }
-    }
-  }
-
-  options.entryDir = path.dirname(entryDocumentURI.path);
-
-  return { text, options, entryPath: entryDocumentURI.path };
-}
-
-async function getRootDocURI(textDocument, serverState) {
-  const settings = await getDocumentSettings(textDocument.uri, serverState);
-  return DocumentURI.createFromURI(`${serverState.rootURI}/${settings.entryPoint}`);
-}
-
-function getDefaultCrafterParams(textDocument, serverState) {
   const options = { readFile: readFile.bind(null, serverState.documents) };
   const documentURI = DocumentURI.createFromURI(textDocument.uri);
   if (documentURI) {
     options.entryDir = path.dirname(documentURI.path);
+  } else if (serverState.rootURI) {
+    const rootURI = DocumentURI.createFromURI(serverState.rootURI);
+    options.entryDir = path.dirname(rootURI.path);
   }
 
   const text = textDocument.getText();
+  const entryPath = documentURI.path;
 
-  return { text, options };
-}
-
-function getDocumentSettings(resource, serverState) {
-  if (!serverState.hasConfigurationCapability) {
-    return Promise.resolve(serverState.globalSettings);
-  }
-  let result = serverState.documentSettings.get(resource);
-  if (!result) {
-    result = serverState.connection.workspace.getConfiguration({
-      scopeUri: resource,
-      section: 'apibLanguageServer',
-    });
-    serverState.documentSettings.set(resource, result);
-  }
-  return result;
+  return { text, options, entryPath };
 }
 
 function readFile(documents, file) {
