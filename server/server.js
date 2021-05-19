@@ -19,7 +19,7 @@ const DocumentValidator = require('./DocumentValidator');
 const TypeDefinitionProvider = require('./TypeDefinitionProvider');
 const CompletionProvider = require('./CompletionProvider');
 
-const defaultSettings = { entryPoint: 'doc.apib' };
+const defaultSettings = {};
 
 const serverState = {
   // Create a simple text document manager.
