@@ -8,6 +8,7 @@ const {
   calculateCrafterParams,
   getRangeForNode,
   getSM,
+  isAnnotationOfType,
 } = require('./utils');
 
 class SymbolsProcessor {
@@ -24,7 +25,13 @@ class SymbolsProcessor {
     const refract = (await crafter.parse(text, options))[0].toRefract(true);
 
     const result = [];
-    refract.content[0].content.forEach(node => {
+    const firstElement = refract.content[0];
+
+    if (isAnnotationOfType(firstElement, 'error')) {
+      return result;
+    }
+
+    firstElement.content.forEach(node => {
       if (!belongsToCurrentFile(node, options, entryPath, textDocument)) {
         return;
       }

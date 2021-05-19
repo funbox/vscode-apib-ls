@@ -7,6 +7,7 @@ const {
   get,
   belongsToCurrentFile,
   calculateCrafterParams,
+  isWarningOrError,
 } = require('./utils');
 
 class DocumentValidator {
@@ -41,14 +42,6 @@ class DocumentValidator {
 
     return diagnostics;
   }
-}
-
-function isWarningOrError(node) {
-  if (node.element === 'annotation') {
-    const nodeType = node.meta.classes.content[0].content;
-    return nodeType === 'error' || nodeType === 'warning';
-  }
-  return false;
 }
 
 module.exports = DocumentValidator;

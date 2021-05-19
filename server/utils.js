@@ -202,6 +202,17 @@ function positionBelongsToNode(pos, node) {
   });
 }
 
+function isAnnotationOfType(node, type) {
+  if (node.element !== 'annotation') return false;
+
+  const nodeType = node.meta.classes.content[0].content;
+  return nodeType === type;
+}
+
+function isWarningOrError(node) {
+  return isAnnotationOfType(node, 'warning') || isAnnotationOfType(node, 'error');
+}
+
 module.exports = {
   get,
   belongsToCurrentFile,
@@ -212,4 +223,6 @@ module.exports = {
   extractSymbols,
   getPosInBytes,
   positionBelongsToNode,
+  isAnnotationOfType,
+  isWarningOrError,
 };
