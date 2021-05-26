@@ -12,11 +12,46 @@ const {
 } = require('./utils');
 
 const HEADER_RE = /^\s*#+\s*/;
+const SECTION_TYPE_RE = /^\s*#+\s*/;
 const LIST_ITEM_RE = /^\s*[+-]\s*/;
 const ROOT_LIST_ITEM_RE = /^[+-]\s*/;
 const INNER_LIST_ITEM_RE = /^\s+[+-]\s*/;
 const ACTION_TITLE_RE = /^[^[]+\[/;
 const IMPORT_SECTION_RE = /^\s*#\s*[Ii]mport\s+/;
+
+const typeAttributes = [
+  'required',
+  'fixed',
+  'fixed-type',
+  'optional',
+  'nullable',
+  'pattern',
+  'format',
+  'min-length',
+  'max-length',
+  'minimum',
+  'maximum',
+  'default',
+  'sample',
+];
+
+const defaultTypes = [
+  'string',
+  'number',
+  'boolean',
+  'file',
+  'object',
+  'array',
+  'enum',
+];
+
+const typeSections = [
+  'Default',
+  'Sample',
+  'Items',
+  'Members',
+  'Properties',
+];
 
 class CompletionProvider {
   constructor(serverState) {
@@ -321,48 +356,21 @@ class CompletionProvider {
       }
     }
 
-    const typeAttributes = [
-      'required',
-      'fixed',
-      'fixed-type',
-      'optional',
-      'nullable',
-      'pattern',
-      'format',
-      'min-length',
-      'max-length',
-      'minimum',
-      'maximum',
-      'default',
-      'sample',
-    ];
+    const preparedLine = line
+      .replace(LIST_ITEM_RE, '')
+      .replace(SECTION_TYPE_RE, '');
+    const [lineToComplete, options = {}] = getLineToComplete(preparedLine);
 
-    const defaultTypes = [
-      'string',
-      'number',
-      'boolean',
-      'file',
-      'object',
-      'array',
-      'enum',
-    ];
-
-    const preparedLine = line.replace(LIST_ITEM_RE, '');
-    const [lineToComplete, inSubType] = getLineToComplete(preparedLine);
-
-    let result = [];
-
-    if (lineToComplete) {
-      if (!inSubType) {
-        result = result.concat(getCompletionOptions(typeAttributes, lineToComplete));
-      }
-      result = result.concat(getCompletionOptions(defaultTypes, lineToComplete));
-      result = result.concat(getCompletionOptions(this.namedTypes, lineToComplete));
-    }
-
-    return result;
+    return getCompletionResult(lineToComplete, options, this.namedTypes);
 
     function getLineToComplete(signature) {
+      // is type section
+      if (typeSections.filter(type => (
+        type.toLocaleLowerCase().startsWith(signature.toLocaleLowerCase())
+      )).length) {
+        return [signature.trim().toLocaleLowerCase(), { isTypeSection: true }];
+      }
+
       let i = 0;
 
       // skip name
@@ -386,7 +394,7 @@ class CompletionProvider {
         }
       }
 
-      if (i === signature.length || signature[i] === '-') return [null, false];
+      if (i === signature.length || signature[i] === '-') return [null];
 
       // skip description
       if (signature[i] === ':') {
@@ -414,24 +422,24 @@ class CompletionProvider {
         }
       }
 
-      if (i === signature.length || signature[i] === '-') return [null, false];
+      if (i === signature.length || signature[i] === '-') return [null];
 
       // in attributes
       let strForCompletion = '';
       i++;
 
       let attributeValueContext = false;
-      let subTypeContext = false;
+      let inSubType = false;
       let slashesNumber = 0;
 
       while (i < signature.length) {
-        if (signature[i] === ')' && !attributeValueContext) return [null, false];
+        if (signature[i] === ')' && !attributeValueContext) return [null];
 
         if (signature[i] === '[' && !attributeValueContext) {
-          subTypeContext = true;
+          inSubType = true;
           strForCompletion = '';
         } else if (signature[i] === ']' && !attributeValueContext) {
-          subTypeContext = false;
+          inSubType = false;
         } else if (signature[i] === ',' && !attributeValueContext) {
           strForCompletion = '';
         } else {
@@ -451,7 +459,7 @@ class CompletionProvider {
         i++;
       }
 
-      return [strForCompletion.trim().toLocaleLowerCase(), subTypeContext];
+      return [strForCompletion.trim().toLocaleLowerCase(), { inSubType }];
     }
   }
 }
@@ -488,6 +496,20 @@ function getCompletionOptions(completionStrings, lineToComplete) {
   return completionStrings
     .filter(i => i.toLocaleLowerCase().indexOf(lineToComplete) === 0)
     .map(str => ({ label: str, kind: CompletionItemKind.Keyword }));
+}
+
+function getCompletionResult(lineToComplete, options, namedTypes) {
+  if (!lineToComplete) return [];
+
+  if (options.isTypeSection) {
+    return getCompletionOptions(typeSections, lineToComplete);
+  }
+
+  return [
+    ...!options.inSubType && getCompletionOptions(typeAttributes, lineToComplete),
+    ...getCompletionOptions(defaultTypes, lineToComplete),
+    ...getCompletionOptions(namedTypes, lineToComplete),
+  ];
 }
 
 module.exports = CompletionProvider;
