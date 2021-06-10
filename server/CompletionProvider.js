@@ -368,95 +368,15 @@ class CompletionProvider {
         return [formatLineToComplete(signature), { isTypeSection: true }];
       }
 
-      let i = 0;
+      let currentCharIndex = 0;
 
-      // skip name
-      while (i < signature.length) {
-        if (signature[i] === '`') {
-          const escapedResult = retrieveEscaped(signature, i);
-          if (escapedResult.result) {
-            signature = escapedResult.str;
-            i = 0;
-          } else {
-            i++;
-          }
-        } else if (
-          signature[i] === ':'
-          || signature[i] === '('
-          || signature[i] === '-'
-        ) {
-          break;
-        } else {
-          i++;
-        }
-      }
+      currentCharIndex = skipName(signature, currentCharIndex);
+      if (isSignatureEndReached(signature, currentCharIndex)) return [null];
 
-      if (isSignatureEndReached(signature, i)) return [null];
+      currentCharIndex = skipDescription(signature, currentCharIndex);
+      if (isSignatureEndReached(signature, currentCharIndex)) return [null];
 
-      // skip description
-      if (signature[i] === ':') {
-        i++;
-        while (i < signature.length) {
-          if (signature[i] === '`') {
-            const escapedResult = retrieveEscaped(signature, i);
-            if (escapedResult.result) {
-              signature = escapedResult.str;
-              i = 0;
-            } else if (escapedResult.escaped) {
-              signature = escapedResult.str;
-              i = 0;
-            } else {
-              i++;
-            }
-          } else if (
-            signature[i] === '('
-            || signature[i] === '-'
-          ) {
-            break;
-          } else {
-            i++;
-          }
-        }
-      }
-
-      if (isSignatureEndReached(signature, i)) return [null];
-
-      // in attributes
-      let strForCompletion = '';
-      i++;
-
-      let attributeValueContext = false;
-      let inSubType = false;
-      let slashesNumber = 0;
-
-      while (i < signature.length) {
-        if (signature[i] === ')' && !attributeValueContext) return [null];
-
-        if (signature[i] === '[' && !attributeValueContext) {
-          inSubType = true;
-          strForCompletion = '';
-        } else if (signature[i] === ']' && !attributeValueContext) {
-          inSubType = false;
-        } else if (signature[i] === ',' && !attributeValueContext) {
-          strForCompletion = '';
-        } else {
-          strForCompletion += signature[i];
-        }
-
-        if (signature[i] === '"' && slashesNumber % 2 === 0) {
-          attributeValueContext = !attributeValueContext;
-        }
-
-        if (signature[i] === '\\') {
-          slashesNumber++;
-        } else {
-          slashesNumber = 0;
-        }
-
-        i++;
-      }
-
-      return [formatLineToComplete(strForCompletion), { inSubType }];
+      return getLineFromAttributes(signature, currentCharIndex);
     }
   }
 }
@@ -521,6 +441,101 @@ function isTypeSection(signature) {
 
 function isSignatureEndReached(signature, index) {
   return index === signature.length || signature[index] === '-';
+}
+
+function skipName(signature, currentIndex) {
+  let i = currentIndex;
+
+  while (i < signature.length) {
+    if (signature[i] === '`') {
+      const escapedResult = retrieveEscaped(signature, i);
+      if (escapedResult.result) {
+        signature = escapedResult.str;
+        i = 0;
+      } else {
+        i++;
+      }
+    } else if (
+      signature[i] === ':'
+      || signature[i] === '('
+      || signature[i] === '-'
+    ) {
+      break;
+    } else {
+      i++;
+    }
+  }
+
+  return i;
+}
+
+function skipDescription(signature, currentIndex) {
+  let i = currentIndex;
+
+  if (signature[i] === ':') {
+    i++;
+    while (i < signature.length) {
+      if (signature[i] === '`') {
+        const escapedResult = retrieveEscaped(signature, i);
+        if (escapedResult.result) {
+          signature = escapedResult.str;
+          i = 0;
+        } else if (escapedResult.escaped) {
+          signature = escapedResult.str;
+          i = 0;
+        } else {
+          i++;
+        }
+      } else if (
+        signature[i] === '('
+        || signature[i] === '-'
+      ) {
+        break;
+      } else {
+        i++;
+      }
+    }
+  }
+
+  return i;
+}
+
+function getLineFromAttributes(signature, index) {
+  let strForCompletion = '';
+  let i = index + 1;
+
+  let attributeValueContext = false;
+  let inSubType = false;
+  let slashesNumber = 0;
+
+  while (i < signature.length) {
+    if (signature[i] === ')' && !attributeValueContext) return [null];
+
+    if (signature[i] === '[' && !attributeValueContext) {
+      inSubType = true;
+      strForCompletion = '';
+    } else if (signature[i] === ']' && !attributeValueContext) {
+      inSubType = false;
+    } else if (signature[i] === ',' && !attributeValueContext) {
+      strForCompletion = '';
+    } else {
+      strForCompletion += signature[i];
+    }
+
+    if (signature[i] === '"' && slashesNumber % 2 === 0) {
+      attributeValueContext = !attributeValueContext;
+    }
+
+    if (signature[i] === '\\') {
+      slashesNumber++;
+    } else {
+      slashesNumber = 0;
+    }
+
+    i++;
+  }
+
+  return [formatLineToComplete(strForCompletion), { inSubType }];
 }
 
 module.exports = CompletionProvider;
