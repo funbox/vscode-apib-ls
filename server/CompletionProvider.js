@@ -391,7 +391,7 @@ class CompletionProvider {
         }
       }
 
-      if (i === signature.length || signature[i] === '-') return [null];
+      if (isSignatureEndReached(signature, i)) return [null];
 
       // skip description
       if (signature[i] === ':') {
@@ -419,7 +419,7 @@ class CompletionProvider {
         }
       }
 
-      if (i === signature.length || signature[i] === '-') return [null];
+      if (isSignatureEndReached(signature, i)) return [null];
 
       // in attributes
       let strForCompletion = '';
@@ -517,6 +517,10 @@ function isTypeSection(signature) {
   return typeSections.filter(type => (
     type.toLocaleLowerCase().startsWith(signature.toLocaleLowerCase())
   )).length;
+}
+
+function isSignatureEndReached(signature, index) {
+  return index === signature.length || signature[index] === '-';
 }
 
 module.exports = CompletionProvider;
