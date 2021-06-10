@@ -368,7 +368,7 @@ class CompletionProvider {
       if (typeSections.filter(type => (
         type.toLocaleLowerCase().startsWith(signature.toLocaleLowerCase())
       )).length) {
-        return [signature.trim().toLocaleLowerCase(), { isTypeSection: true }];
+        return [formatLineToComplete(signature), { isTypeSection: true }];
       }
 
       let i = 0;
@@ -459,7 +459,7 @@ class CompletionProvider {
         i++;
       }
 
-      return [strForCompletion.trim().toLocaleLowerCase(), { inSubType }];
+      return [formatLineToComplete(strForCompletion), { inSubType }];
     }
   }
 }
@@ -510,6 +510,10 @@ function getCompletionResult(lineToComplete, options, namedTypes) {
     ...getCompletionOptions(defaultTypes, lineToComplete),
     ...getCompletionOptions(namedTypes, lineToComplete),
   ];
+}
+
+function formatLineToComplete(line) {
+  return line.trim().toLocaleLowerCase();
 }
 
 module.exports = CompletionProvider;
