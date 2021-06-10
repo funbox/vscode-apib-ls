@@ -364,10 +364,7 @@ class CompletionProvider {
     return getCompletionResult(lineToComplete, options, this.namedTypes);
 
     function getLineToComplete(signature) {
-      // is type section
-      if (typeSections.filter(type => (
-        type.toLocaleLowerCase().startsWith(signature.toLocaleLowerCase())
-      )).length) {
+      if (isTypeSection(signature)) {
         return [formatLineToComplete(signature), { isTypeSection: true }];
       }
 
@@ -514,6 +511,12 @@ function getCompletionResult(lineToComplete, options, namedTypes) {
 
 function formatLineToComplete(line) {
   return line.trim().toLocaleLowerCase();
+}
+
+function isTypeSection(signature) {
+  return typeSections.filter(type => (
+    type.toLocaleLowerCase().startsWith(signature.toLocaleLowerCase())
+  )).length;
 }
 
 module.exports = CompletionProvider;
