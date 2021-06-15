@@ -10,6 +10,7 @@
   },
   "devDependencies": {
     "@types/vscode": "1.43.0",
+    "glob": "^7.1.7",
     "vscode-test": "^1.5.2"
   }
 }
