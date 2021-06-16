@@ -5,6 +5,9 @@
   "engines": {
     "vscode": "^1.43.0"
   },
+  "scripts": {
+    "test": "node ./tests/runTest.js"
+  },
   "dependencies": {
     "vscode-languageclient": "^6.1.3"
   },

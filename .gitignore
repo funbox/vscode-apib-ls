@@ -57,6 +57,7 @@ Session.vim
 /gemini-*
 /screenshots
 .nyc_output
+.vscode-test
 
 # -- Sass --
 .sass-cache
