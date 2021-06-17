@@ -14,6 +14,8 @@ describe('Extension test', function () {
 
   const incompleteImportUri = helpers.getDocUri('incomplete-import.apib');
   const incompleteMethodsUri = helpers.getDocUri('incomplete-methods.apib');
+  const incompleteResoucePrototype = helpers.getDocUri('incomplete-resource-prototype.apib');
+  const incompleteResoucePrototypeAndDataStructure = helpers.getDocUri('incomplete-resource-prototype-and-data-structure.apib');
   const incompleteSectionNamesUri = helpers.getDocUri('incomplete-section-names.apib');
 
   before(() => {
@@ -92,16 +94,46 @@ describe('Extension test', function () {
     });
   });
 
-  describe('Completes import', () => {
+  describe('Completes Import', () => {
     before(async () => {
       await helpers.activate(incompleteImportUri);
     });
 
-    it('Completes files for import', async () => {
+    it('Completes files for Import', async () => {
       await testCompletion(incompleteImportUri, new vscode.Position(2, 15), [
         'nested-a.apib',
         'nested-b.apib',
       ]);
+    });
+  });
+
+  describe('Completes resource prototypes', () => {
+    before(async () => {
+      await helpers.activate(incompleteResoucePrototype);
+    });
+
+    it('Completes Resource Prototype', async () => {
+      await testCompletion(incompleteResoucePrototype, new vscode.Position(6, 3), ['Response']);
+    });
+
+    it('Completes Response in Resource Prototype', async () => {
+      await testCompletion(incompleteResoucePrototype, new vscode.Position(11, 7), ['Schema']);
+      await testCompletion(incompleteResoucePrototype, new vscode.Position(12, 7), ['Attributes']);
+      await testCompletion(incompleteResoucePrototype, new vscode.Position(13, 7), ['Body']);
+    });
+
+    it('Completes types in Attributes of Response', async () => {
+      await testCompletion(incompleteResoucePrototype, new vscode.Position(19, 19), ['enum']);
+    });
+  });
+
+  describe('Completes resource prototype with data structure', () => {
+    before(async () => {
+      await helpers.activate(incompleteResoucePrototypeAndDataStructure);
+    });
+
+    it('Completes resource prototype with data structure', async () => {
+      await testCompletion(incompleteResoucePrototypeAndDataStructure, new vscode.Position(13, 19), ['UserRole']);
     });
   });
 });
