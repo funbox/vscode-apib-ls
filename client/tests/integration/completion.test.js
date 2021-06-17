@@ -98,10 +98,9 @@ describe('Extension test', function () {
     });
 
     it('Completes files for import', async () => {
-      await testCompletion(incompleteImportUri, new vscode.Position(2, 10), [
-        'incomplete-import.apib',
-        'incomplete-methods.apib',
-        'incomplete-section-names.apib',
+      await testCompletion(incompleteImportUri, new vscode.Position(2, 15), [
+        'nested-a.apib',
+        'nested-b.apib',
       ]);
     });
   });
