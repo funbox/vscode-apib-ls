@@ -12,6 +12,7 @@ describe('Extension test', function () {
   const fixturePath = path.resolve(__dirname, '../tmp-fixtures');
   const fixtureSourcePath = path.resolve(__dirname, '../fixtures');
 
+  const incompleteImportUri = helpers.getDocUri('incomplete-import.apib');
   const incompleteMethodsUri = helpers.getDocUri('incomplete-methods.apib');
   const incompleteSectionNamesUri = helpers.getDocUri('incomplete-section-names.apib');
 
@@ -88,6 +89,20 @@ describe('Extension test', function () {
       await Promise.all(cases.map(async ([position, labels]) => (
         testCompletion(incompleteMethodsUri, position, labels)
       )));
+    });
+  });
+
+  describe('Completes import', () => {
+    before(async () => {
+      await helpers.activate(incompleteImportUri);
+    });
+
+    it('Completes files for import', async () => {
+      await testCompletion(incompleteImportUri, new vscode.Position(2, 10), [
+        'incomplete-import.apib',
+        'incomplete-methods.apib',
+        'incomplete-section-names.apib',
+      ]);
     });
   });
 });
