@@ -84,19 +84,14 @@ class TypeDefinitionProvider {
   }
 
   getDefinitionLocationFromResource(pos, node) {
-    for (let i = 0; i < node.content.length; i++) {
-      const transitionNode = node.content[i];
-      if (transitionNode.element === 'transition') {
-        for (let j = 0; j < transitionNode.content.length; j++) {
-          const [requestNode, responseNode] = transitionNode.content[j].content;
+    const transitionNode = node.content.find(n => n.element === 'transition' && positionBelongsToNode(pos, n));
 
-          if (positionBelongsToNode(pos, requestNode)) {
-            return this.getDefinitionLocationFromRequestOrResponse(pos, requestNode);
-          }
+    if (transitionNode) {
+      for (let j = 0; j < transitionNode.content.length; j++) {
+        const requestOrResponseNode = transitionNode.content[j].content.find(n => positionBelongsToNode(pos, n));
 
-          if (positionBelongsToNode(pos, responseNode)) {
-            return this.getDefinitionLocationFromRequestOrResponse(pos, responseNode);
-          }
+        if (requestOrResponseNode) {
+          return this.getDefinitionLocationFromRequestOrResponse(pos, requestOrResponseNode);
         }
       }
 
