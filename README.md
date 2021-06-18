@@ -1,6 +1,6 @@
 # API Blueprint Language Server
 
-Пакет позволяет более удобно работать с API Blueprint в редакторе VS Code.
+Пакет позволяет более удобно работать с API Blueprint в редакторах кода и IDE.
 
 ## Возможности
 
@@ -40,7 +40,7 @@ File -> Prefernces -> Settings -> Extensions -> API Blueprint -> Entry Point
     └── server.js // Language Server entry point
 ```
 
-## Запуск для разработки
+## Запуск для разработки в VS Code
 
 * в корневой директории выполнить команду `npm install`;
 * открыть VS Code;
@@ -61,7 +61,55 @@ File -> Prefernces -> Settings -> Extensions -> API Blueprint -> Entry Point
 этом результаты вывода необходимо искать в окне `Extension Development Host` в
 панели `Output` - `API Blueprint Language Server`.
 
-## Сборка пакета
+## Сборка расширения для VS Code
 
 * в корневой директории выполнить команду `npx vsce package`;
 * полученный пакет передать для установки заинтересованным лицам.
+
+## Работа с LS в WebStorm, PhpStorm и пр.
+
+### Добавление поддержки Language Server Protocol
+
+Для работы с LS необходимо установить плагин
+[LSP Support](https://plugins.jetbrains.com/plugin/10209-lsp-support).
+
+Последняя версия плагина (1.6.1) работает крайне не стабильно, а разработка
+приостановлена на неопределённый срок, поэтому рекомендуется установить версию
+[1.6.0](https://github.com/gtache/intellij-lsp/releases/tag/v1.6.0).   
+
+Установка:
+
+1. Скачать архив
+   [LSP.zip](https://github.com/gtache/intellij-lsp/releases/download/v1.6.0/LSP.zip).
+2. Перейти в раздел с плагинами в настройках IDE
+   (Preferences → [Plugins](jetbrains://WebStorm/settings?name=Plugins)).
+3. Нажать на иконку шестерёнки и выбрать пункт «Install Plugin from Disk…».
+4. Указать путь до файла LSP.zip.
+
+После успешной установки файл LSP.zip можно удалить.
+
+### Настройка плагина LSP Support
+
+Настройка плагина производится по пути Preferences → Languages & Frameworks → Language Server Protocol →
+[Server Definitions](jetbrains://WebStorm/settings?name=Languages+%26+Frameworks--Language+Server+Protocol--Server+Definitions).
+
+Необходимо установить следующие настройки:
+
+1. В выпадающем меню выбрать: `Executable`.
+2. В поле Extension указать: `apib`.
+3. В поле Path указать полный путь до исполняемого файла `node`.
+4. В поле Args первым аргументом указать полный путь до файла
+   [server/server.js](./server/server.js), а вторым, через пробел,
+   добавить текст `--stdio`. Пример:
+   `/full/path/to/vscode-apib-ls/server/server.js --stdio`.
+   
+Так же возможен вариант настройки с глобальной установкой LS в виде исполняемого
+файла.
+
+Для этого необходимо в директории проекта выполнить команду `npm link`, после
+чего убедиться в том, что из терминала доступен вызов команды `apibserver`.
+
+Затем, в настройках плагина, в поле Path изменить значение на `apibserver`,
+а в поле Args на `--stdio`.
+
+**Важно**. После любых изменений настроек плагина лучше перезагрузить IDE.
