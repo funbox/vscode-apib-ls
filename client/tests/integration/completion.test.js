@@ -12,10 +12,11 @@ describe('Extension test', function () {
   const fixturePath = path.resolve(__dirname, '../tmp-fixtures');
   const fixtureSourcePath = path.resolve(__dirname, '../fixtures');
 
+  const incompleteDataStructures = helpers.getDocUri('incomplete-data-structures.apib');
   const incompleteImportUri = helpers.getDocUri('incomplete-import.apib');
   const incompleteMethodsUri = helpers.getDocUri('incomplete-methods.apib');
-  const incompleteResoucePrototype = helpers.getDocUri('incomplete-resource-prototype.apib');
-  const incompleteResoucePrototypeAndDataStructure = helpers.getDocUri('incomplete-resource-prototype-and-data-structure.apib');
+  const incompleteResourcePrototype = helpers.getDocUri('incomplete-resource-prototype.apib');
+  const incompleteResourcePrototypeAndDataStructure = helpers.getDocUri('incomplete-resource-prototype-and-data-structure.apib');
   const incompleteSectionNamesUri = helpers.getDocUri('incomplete-section-names.apib');
 
   before(() => {
@@ -107,33 +108,69 @@ describe('Extension test', function () {
     });
   });
 
-  describe('Completes resource prototypes', () => {
+  describe('Completes Resource Prototypes', () => {
     before(async () => {
-      await helpers.activate(incompleteResoucePrototype);
+      await helpers.activate(incompleteResourcePrototype);
     });
 
     it('Completes Resource Prototype', async () => {
-      await testCompletion(incompleteResoucePrototype, new vscode.Position(6, 3), ['Response']);
+      await testCompletion(incompleteResourcePrototype, new vscode.Position(6, 3), ['Response']);
     });
 
     it('Completes Response in Resource Prototype', async () => {
-      await testCompletion(incompleteResoucePrototype, new vscode.Position(11, 7), ['Schema']);
-      await testCompletion(incompleteResoucePrototype, new vscode.Position(12, 7), ['Attributes']);
-      await testCompletion(incompleteResoucePrototype, new vscode.Position(13, 7), ['Body']);
+      await testCompletion(incompleteResourcePrototype, new vscode.Position(11, 7), ['Schema']);
+      await testCompletion(incompleteResourcePrototype, new vscode.Position(12, 7), ['Attributes']);
+      await testCompletion(incompleteResourcePrototype, new vscode.Position(13, 7), ['Body']);
     });
 
     it('Completes types in Attributes of Response', async () => {
-      await testCompletion(incompleteResoucePrototype, new vscode.Position(19, 19), ['enum']);
+      await testCompletion(incompleteResourcePrototype, new vscode.Position(19, 19), ['enum']);
     });
   });
 
-  describe('Completes resource prototype with data structure', () => {
+  describe('Completes Resource Prototype with data structure', () => {
     before(async () => {
-      await helpers.activate(incompleteResoucePrototypeAndDataStructure);
+      await helpers.activate(incompleteResourcePrototypeAndDataStructure);
     });
 
     it('Completes resource prototype with data structure', async () => {
-      await testCompletion(incompleteResoucePrototypeAndDataStructure, new vscode.Position(13, 19), ['UserRole']);
+      await testCompletion(incompleteResourcePrototypeAndDataStructure, new vscode.Position(13, 19), ['UserRole']);
+    });
+  });
+
+  describe('Completes Data Structures', () => {
+    before(async () => {
+      await helpers.activate(incompleteDataStructures);
+    });
+
+    it('Completes Data Structures', async () => {
+      await testCompletion(incompleteDataStructures, new vscode.Position(9, 12), ['string']);
+      await testCompletion(incompleteDataStructures, new vscode.Position(10, 13), ['number']);
+      await testCompletion(incompleteDataStructures, new vscode.Position(11, 12), ['boolean']);
+      await testCompletion(incompleteDataStructures, new vscode.Position(12, 11), ['file']);
+      await testCompletion(incompleteDataStructures, new vscode.Position(13, 12), ['object']);
+      await testCompletion(incompleteDataStructures, new vscode.Position(14, 10), ['array']);
+      await testCompletion(incompleteDataStructures, new vscode.Position(15, 9), ['enum']);
+    });
+
+    it('Completes Type Attributes', async () => {
+      await testCompletion(incompleteDataStructures, new vscode.Position(19, 13), ['required']);
+      await testCompletion(incompleteDataStructures, new vscode.Position(20, 21), ['fixed', 'fixed-type']);
+      await testCompletion(incompleteDataStructures, new vscode.Position(21, 12), ['format']);
+      await testCompletion(incompleteDataStructures, new vscode.Position(22, 14), ['optional']);
+      await testCompletion(incompleteDataStructures, new vscode.Position(23, 15), ['nullable']);
+      await testCompletion(incompleteDataStructures, new vscode.Position(24, 12), ['pattern']);
+      await testCompletion(incompleteDataStructures, new vscode.Position(25, 37), ['max-length', 'maximum', 'min-length', 'minimum']);
+      await testCompletion(incompleteDataStructures, new vscode.Position(26, 12), ['default']);
+      await testCompletion(incompleteDataStructures, new vscode.Position(27, 12), ['sample']);
+    });
+
+    it('Completes Default Type and Type Attribute', async () => {
+      await testCompletion(incompleteDataStructures, new vscode.Position(31, 21), ['required']);
+    });
+
+    it('Completes Nested Type', async () => {
+      await testCompletion(incompleteDataStructures, new vscode.Position(35, 11), ['Child']);
     });
   });
 });

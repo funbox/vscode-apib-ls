@@ -321,7 +321,6 @@ class CompletionProvider {
       }
     }
 
-
     const typeAttributes = [
       'required',
       'fixed',
