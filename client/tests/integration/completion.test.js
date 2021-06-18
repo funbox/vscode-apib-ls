@@ -6,6 +6,7 @@ const vscode = require('vscode');
 
 const helpers = require('./helpers');
 
+// eslint-disable-next-line func-names
 describe('Extension test', function () {
   this.timeout(60000);
 
@@ -13,10 +14,6 @@ describe('Extension test', function () {
   const fixtureSourcePath = path.resolve(__dirname, '../fixtures');
 
   const incompleteDataStructures = helpers.getDocUri('incomplete-data-structures.apib');
-  const incompleteImportUri = helpers.getDocUri('incomplete-import.apib');
-  const incompleteMethodsUri = helpers.getDocUri('incomplete-methods.apib');
-  const incompleteResourcePrototype = helpers.getDocUri('incomplete-resource-prototype.apib');
-  const incompleteResourcePrototypeAndDataStructure = helpers.getDocUri('incomplete-resource-prototype-and-data-structure.apib');
   const incompleteSectionNamesUri = helpers.getDocUri('incomplete-section-names.apib');
 
   before(() => {
@@ -54,6 +51,8 @@ describe('Extension test', function () {
   });
 
   describe('Completes request methods', () => {
+    const incompleteMethodsUri = helpers.getDocUri('incomplete-methods.apib');
+
     before(async () => {
       await helpers.activate(incompleteSectionNamesUri);
     });
@@ -96,6 +95,8 @@ describe('Extension test', function () {
   });
 
   describe('Completes Import', () => {
+    const incompleteImportUri = helpers.getDocUri('incomplete-import.apib');
+
     before(async () => {
       await helpers.activate(incompleteImportUri);
     });
@@ -109,6 +110,8 @@ describe('Extension test', function () {
   });
 
   describe('Completes Resource Prototypes', () => {
+    const incompleteResourcePrototype = helpers.getDocUri('incomplete-resource-prototype.apib');
+
     before(async () => {
       await helpers.activate(incompleteResourcePrototype);
     });
@@ -129,6 +132,8 @@ describe('Extension test', function () {
   });
 
   describe('Completes Resource Prototype with data structure', () => {
+    const incompleteResourcePrototypeAndDataStructure = helpers.getDocUri('incomplete-resource-prototype-and-data-structure.apib');
+
     before(async () => {
       await helpers.activate(incompleteResourcePrototypeAndDataStructure);
     });
@@ -171,6 +176,20 @@ describe('Extension test', function () {
 
     it('Completes Nested Type', async () => {
       await testCompletion(incompleteDataStructures, new vscode.Position(35, 11), ['Child']);
+    });
+  });
+
+  describe('Completes Resource Group', () => {
+    describe('Completes Resource Parameters', () => {
+      const incompleteResourceParameterUri = helpers.getDocUri('incomplete-resource-parameter.apib');
+
+      before(async () => {
+        await helpers.activate(incompleteResourceParameterUri);
+      });
+
+      it('Completes Resource Parameters', async () => {
+        await testCompletion(incompleteResourceParameterUri, new vscode.Position(6, 3), ['Parameters']);
+      });
     });
   });
 });
