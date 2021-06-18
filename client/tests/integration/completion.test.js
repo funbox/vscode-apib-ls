@@ -181,14 +181,18 @@ describe('Extension test', function () {
 
   describe('Completes Resource Group', () => {
     describe('Completes Resource Parameters', () => {
-      const incompleteResourceParameterUri = helpers.getDocUri('incomplete-resource-parameter.apib');
+      const incompleteResourceUri = helpers.getDocUri('incomplete-resource.apib');
 
       before(async () => {
-        await helpers.activate(incompleteResourceParameterUri);
+        await helpers.activate(incompleteResourceUri);
       });
 
       it('Completes Resource Parameters', async () => {
-        await testCompletion(incompleteResourceParameterUri, new vscode.Position(6, 3), ['Parameters']);
+        await testCompletion(incompleteResourceUri, new vscode.Position(6, 3), ['Parameters']);
+      });
+
+      it('Completes Resource Request and Response', async () => {
+        await testCompletion(incompleteSectionNamesUri, new vscode.Position(7, 3), ['Request', 'Response']);
       });
     });
   });
