@@ -7,7 +7,7 @@ const vscode = require('vscode');
 const helpers = require('./helpers');
 
 // eslint-disable-next-line func-names
-describe('Extension test', function () {
+describe('Completion tests', function () {
   this.timeout(60000);
 
   const fixturePath = path.resolve(__dirname, '../tmp-fixtures');
