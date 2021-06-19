@@ -181,7 +181,7 @@ describe('Extension test', function () {
 
   describe('Completes Resource Group', () => {
     describe('Completes Resource Parameters', () => {
-      const incompleteResourceUri = helpers.getDocUri('incomplete-resource.apib');
+      const incompleteResourceUri = helpers.getDocUri('incomplete-resource-group.apib');
 
       before(async () => {
         await helpers.activate(incompleteResourceUri);
@@ -192,7 +192,21 @@ describe('Extension test', function () {
       });
 
       it('Completes Resource Request and Response', async () => {
-        await testCompletion(incompleteSectionNamesUri, new vscode.Position(7, 3), ['Request', 'Response']);
+        await testCompletion(incompleteResourceUri, new vscode.Position(7, 3), ['Request', 'Response']);
+      });
+    });
+
+    describe('Completes Resource Response', () => {
+      const incompleteResourceResponesUri = helpers.getDocUri('incomplete-resource-group-response.apib');
+
+      before(async () => {
+        await helpers.activate(incompleteResourceResponesUri);
+      });
+
+      it('Completes Resource Response', async () => {
+        await testCompletion(incompleteResourceResponesUri, new vscode.Position(7, 7), ['Attributes']);
+        await testCompletion(incompleteResourceResponesUri, new vscode.Position(8, 7), ['Body']);
+        await testCompletion(incompleteResourceResponesUri, new vscode.Position(9, 7), ['Schema']);
       });
     });
   });
