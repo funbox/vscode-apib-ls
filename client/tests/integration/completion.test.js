@@ -210,6 +210,18 @@ describe('Extension test', function () {
       });
     });
   });
+
+  describe('Completes Resource', () => {
+    const incompleteResourceUri = helpers.getDocUri('incomplete-resource.apib');
+
+    before(async () => {
+      await helpers.activate(incompleteResourceUri);
+    });
+
+    it('Completes Resource Response and Request', async () => {
+      await testCompletion(incompleteResourceUri, new vscode.Position(4, 3), ['Request', 'Response']);
+    });
+  });
 });
 
 /**
