@@ -231,11 +231,11 @@ describe('Completion tests', function () {
  * @returns {Promise<void>}
  */
 async function testCompletion(docUri, position, labels) {
-  const actualCompletionList = (await vscode.commands.executeCommand(
+  const actualCompletionList = await vscode.commands.executeCommand(
     'vscode.executeCompletionItemProvider',
     docUri,
     position,
-  ));
+  );
 
   assert.ok(actualCompletionList.items.length === labels.length);
 
