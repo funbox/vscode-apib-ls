@@ -1,6 +1,4 @@
 const assert = require('assert');
-const fs = require('fs-extra');
-const path = require('path');
 // eslint-disable-next-line import/no-unresolved
 const vscode = require('vscode');
 
@@ -10,19 +8,8 @@ const helpers = require('./helpers');
 describe('Completion tests', function () {
   this.timeout(60000);
 
-  const fixturePath = path.resolve(__dirname, '../tmp-fixtures');
-  const fixtureSourcePath = path.resolve(__dirname, '../fixtures');
-
   const incompleteDataStructures = helpers.getDocUri('incomplete-data-structures.apib');
   const incompleteSectionNamesUri = helpers.getDocUri('incomplete-section-names.apib');
-
-  before(() => {
-    fs.copySync(fixtureSourcePath, fixturePath);
-  });
-
-  after(() => {
-    fs.removeSync(fixturePath);
-  });
 
   describe('Completes section names', () => {
     before(async () => {

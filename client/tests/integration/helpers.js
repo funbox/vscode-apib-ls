@@ -37,7 +37,7 @@ module.exports = {
    * @param {string} p
    */
   getDocPath(p) {
-    return path.resolve(__dirname, '../tmp-fixtures', p);
+    return path.resolve(__dirname, '../fixtures', p);
   },
 
   /**

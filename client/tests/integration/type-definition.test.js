@@ -1,6 +1,4 @@
 const assert = require('assert');
-const fs = require('fs-extra');
-const path = require('path');
 // eslint-disable-next-line import/no-unresolved
 const vscode = require('vscode');
 
@@ -9,17 +7,6 @@ const helpers = require('./helpers');
 // eslint-disable-next-line func-names
 describe('Type Definition tests', function () {
   this.timeout(60000);
-
-  const fixturePath = path.resolve(__dirname, '../tmp-fixtures');
-  const fixtureSourcePath = path.resolve(__dirname, '../fixtures');
-
-  before(() => {
-    fs.copySync(fixtureSourcePath, fixturePath);
-  });
-
-  after(() => {
-    fs.removeSync(fixturePath);
-  });
 
   describe('Resource Group', () => {
     const resourceGroupUri = helpers.getDocUri('type-definition-resource-group.apib');
