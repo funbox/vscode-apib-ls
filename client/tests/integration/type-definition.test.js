@@ -1,0 +1,113 @@
+const assert = require('assert');
+const fs = require('fs-extra');
+const path = require('path');
+// eslint-disable-next-line import/no-unresolved
+const vscode = require('vscode');
+
+const helpers = require('./helpers');
+
+// eslint-disable-next-line func-names
+describe('Type Definition tests', function () {
+  this.timeout(60000);
+
+  const fixturePath = path.resolve(__dirname, '../tmp-fixtures');
+  const fixtureSourcePath = path.resolve(__dirname, '../fixtures');
+
+  before(() => {
+    fs.copySync(fixtureSourcePath, fixturePath);
+  });
+
+  after(() => {
+    fs.removeSync(fixturePath);
+  });
+
+  describe('Resource Group', () => {
+    const resourceGroupUri = helpers.getDocUri('type-definition-resource-group.apib');
+
+    before(async () => {
+      await helpers.activate(resourceGroupUri);
+    });
+
+    it('Should go to Resource Prototype', async () => {
+      await testTypeDefinition(resourceGroupUri, new vscode.Position(23, 14), [
+        { range: new vscode.Range(14, 0, 18, 0) },
+      ]);
+    });
+
+    it('Should go to Data Structure', async () => {
+      await testTypeDefinition(resourceGroupUri, new vscode.Position(26, 20), [
+        { range: new vscode.Range(8, 0, 11, 0) },
+      ]);
+    });
+  });
+
+  describe('Data Structures', () => {
+    const dataStructuresUri = helpers.getDocUri('type-definition-data-structures.apib');
+
+    before(async () => {
+      await helpers.activate(dataStructuresUri);
+    });
+
+    it('Should go to Parent Type', async () => {
+      await testTypeDefinition(dataStructuresUri, new vscode.Position(8, 20), [
+        { range: new vscode.Range(4, 0, 7, 0) },
+      ]);
+    });
+  });
+
+  describe('Resource Prototypes', () => {
+    const resourcePrototypesUri = helpers.getDocUri('type-definition-resource-prototypes.apib');
+
+    before(async () => {
+      await helpers.activate(resourcePrototypesUri);
+    });
+
+    it('Should go to Parent Resource Prototype', async () => {
+      await testTypeDefinition(resourcePrototypesUri, new vscode.Position(14, 14), [
+        { range: new vscode.Range(9, 0, 13, 0) },
+      ]);
+    });
+
+    // TODO: Реализовать тесты перехода к Data Structure
+  });
+
+  describe('Resource', () => {
+    const resourceUri = helpers.getDocUri('type-definition-resource.apib');
+
+    before(async () => {
+      await helpers.activate(resourceUri);
+    });
+
+    it('Should go to Resource Prototype', async () => {
+      await testTypeDefinition(resourceUri, new vscode.Position(14, 25), [
+        { range: new vscode.Range(10, 0, 13, 0) },
+      ]);
+    });
+
+    it('Should go to Data Structure', async () => {
+      await testTypeDefinition(resourceUri, new vscode.Position(17, 19), [
+        { range: new vscode.Range(4, 0, 7, 0) },
+      ]);
+    });
+  });
+});
+
+/**
+ * @param {vscode.Uri} docUri
+ * @param {vscode.Position} position
+ * @param {(vscode.Definition[]|vscode.DefinitionLink[])} typeDefinitionList
+ * @returns {Promise<void>}
+ */
+async function testTypeDefinition(docUri, position, typeDefinitionList) {
+  const actualTypeDefinitionList = await vscode.commands.executeCommand(
+    'vscode.executeTypeDefinitionProvider',
+    docUri,
+    position,
+  );
+
+  assert.ok(actualTypeDefinitionList.length === typeDefinitionList.length);
+
+  typeDefinitionList.forEach((item, i) => {
+    assert.deepStrictEqual(actualTypeDefinitionList[i].range, item.range);
+  });
+}

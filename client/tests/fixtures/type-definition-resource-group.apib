@@ -1,0 +1,27 @@
+# API name
+
+# Data Structures
+
+## Error
++ code (number, required)
++ name (string, required)
+
+## User
++ id (number, required)
++ name (string, required)
+
+# Resource Prototypes
+
+## NotFound
+
++ Response 404 (application/json)
+    + Attributes (Error)
+
+# Group Users
+
+## Users [/users]
+
+### GET (NotFound)
+
++ Response 200 (application/json)
+    + Attributes (User)
