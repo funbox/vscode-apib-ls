@@ -69,7 +69,9 @@
   "scripts": {
     "postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
     "dev": "cd server && npm run dev",
-    "test": "cd server && npm test",
+    "test": "npm run test-server && npm run test-client",
+    "test-client": "cd client && npm test",
+    "test-server": "cd server && npm test",
     "lint": "eslint --cache -c .eslintrc.js --ext .js ./"
   },
   "devDependencies": {
