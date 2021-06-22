@@ -16,10 +16,11 @@ async function main() {
       extensionDevelopmentPath,
       extensionTestsPath,
       launchArgs: [
+        '--disable-gpu',
         '--disable-extensions',
         `--user-data-dir=${extensionDevelopmentPath}/.user-data-dir-test`,
       ],
-      version: '1.57.0',
+      version: '1.48.0',
     });
   } catch (err) {
     console.error(err);
