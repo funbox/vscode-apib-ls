@@ -12,7 +12,7 @@ describe('Symbols test', () => {
       await helpers.activate(dataStructuresUri);
     });
 
-    it('Should get Data Structures Symbols', async () => {
+    xit('Should get Data Structures Symbols', async () => {
       await testSymbols(dataStructuresUri, [
         {
           name: 'Data Structures',
@@ -39,7 +39,7 @@ describe('Symbols test', () => {
       await helpers.activate(schemaStructuresUri);
     });
 
-    it('Should get Schema Structures Symbols', async () => {
+    xit('Should get Schema Structures Symbols', async () => {
       await testSymbols(schemaStructuresUri, [
         {
           name: 'Schema Structures',
@@ -75,7 +75,7 @@ describe('Symbols test', () => {
       await helpers.activate(resourcesPrototypesUri);
     });
 
-    it('Should get Resource Prototypes Symbols', async () => {
+    xit('Should get Resource Prototypes Symbols', async () => {
       await testSymbols(resourcesPrototypesUri, [
         {
           name: 'Resource Prototypes',
@@ -127,7 +127,7 @@ describe('Symbols test', () => {
       await helpers.activate(resourceGroupUri);
     });
 
-    it('Should get Resource Group Symbols', async () => {
+    xit('Should get Resource Group Symbols', async () => {
       await testSymbols(resourceGroupUri, [
         {
           name: 'Users',
@@ -172,7 +172,7 @@ describe('Symbols test', () => {
       await helpers.activate(actionUri);
     });
 
-    it('Should get Action Symbols', async () => {
+    xit('Should get Action Symbols', async () => {
       await testSymbols(actionUri, [
         {
           name: 'Profile [GET /profile]',
