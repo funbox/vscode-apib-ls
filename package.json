@@ -70,7 +70,7 @@
     "postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
     "dev": "cd server && npm run dev",
     "test": "npm run test-server && npm run test-client",
-    "test-client": "cd client && npm test",
+    "test-client": "cd client && ./tests/run.sh",
     "test-server": "cd server && npm test",
     "lint": "eslint --cache -c .eslintrc.js --ext .js ./"
   },
