@@ -249,7 +249,9 @@ class CompletionProvider {
 
     let result = [];
 
-    const transactionNode = node.content.find(n => n.element === 'httpTransition' && positionBelongsToNode(pos, n));
+    // + Request does not generate httpTransaction, so auto completion wouldn't work without + Response
+    // httpTransaction has no sourceMap, so we need to check its content
+    const transactionNode = node.content.find(n => n.element === 'httpTransaction' && (positionBelongsToNode(pos, n.content[0]) || positionBelongsToNode(pos, n.content[1])));
 
     if (transactionNode) {
       const nodeForPosition = transactionNode.content.find(n => positionBelongsToNode(pos, n));
