@@ -4,10 +4,7 @@ const vscode = require('vscode');
 
 const helpers = require('./helpers');
 
-// eslint-disable-next-line func-names
-describe('Symbols test', function () {
-  this.timeout(60000);
-
+describe('Symbols test', () => {
   describe('Data Structures', () => {
     const dataStructuresUri = helpers.getDocUri('symbols-data-structures.apib');
 

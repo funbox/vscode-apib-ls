@@ -4,10 +4,7 @@ const vscode = require('vscode');
 
 const helpers = require('./helpers');
 
-// eslint-disable-next-line func-names
-describe('Completion tests', function () {
-  this.timeout(60000);
-
+describe('Completion tests', () => {
   const incompleteDataStructures = helpers.getDocUri('incomplete-data-structures.apib');
   const incompleteSectionNamesUri = helpers.getDocUri('incomplete-section-names.apib');
 

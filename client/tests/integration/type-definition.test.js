@@ -4,10 +4,7 @@ const vscode = require('vscode');
 
 const helpers = require('./helpers');
 
-// eslint-disable-next-line func-names
-describe('Type Definition tests', function () {
-  this.timeout(60000);
-
+describe('Type Definition tests', () => {
   describe('Resource Group', () => {
     const resourceGroupUri = helpers.getDocUri('type-definition-resource-group.apib');
 

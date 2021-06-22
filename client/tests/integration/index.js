@@ -6,6 +6,7 @@ function run(testsRoot, cb) {
   // Create the mocha test
   const mocha = new Mocha({
     color: true,
+    timeout: 60000,
   });
 
   glob('**/**.test.js', { cwd: testsRoot }, (error, files) => {

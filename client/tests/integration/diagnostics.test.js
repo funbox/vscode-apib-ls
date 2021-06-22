@@ -5,9 +5,7 @@ const vscode = require('vscode');
 const helpers = require('./helpers');
 
 // eslint-disable-next-line func-names
-describe('Diagnostics tests', function () {
-  this.timeout(60000);
-
+describe('Diagnostics tests', () => {
   describe('Should get Error', () => {
     const withErrorUri = helpers.getDocUri('with-error.apib');
 
