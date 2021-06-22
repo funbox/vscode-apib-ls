@@ -7,3 +7,12 @@ if [[ -n "${CI}" ]]; then
 fi
 
 npm test
+
+exitCode=$?
+
+if [[ -n "${CI}" ]]; then
+  pkill Xvfb
+  echo "Xvfb has been stopped"
+fi
+
+exit $exitCode
