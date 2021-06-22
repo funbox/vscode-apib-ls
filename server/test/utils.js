@@ -43,25 +43,25 @@ describe('DocumentURI (win32)', () => {
   });
 
   it('should create from path', () => {
-    const duri = DocumentURI.createFromPath('\\c\\Program Files\\folder\\file.txt');
+    const duri = DocumentURI.createFromPath('\\c:Program Files\\folder\\file.txt');
 
     // TODO: не должен тут path совпадать с uri по формату?
-    expect(duri.path).eql('\\c\\Program Files\\folder\\file.txt');
+    expect(duri.path).eql('\\c:Program Files\\folder\\file.txt');
 
     // TODO: точно тут должно быть четыре слэша после file?
-    expect(duri.uri).eql('file:////c/Program%20Files/folder/file.txt');
+    expect(duri.uri).eql('file:////c%3AProgram%20Files/folder/file.txt');
 
     // TODO: почему не 'file'?
     expect(duri.protocol).eql(null);
   });
 
   it('should create from uri', () => {
-    const duri = DocumentURI.createFromURI('file:///c/Program%20Files/folder/file.txt');
+    const duri = DocumentURI.createFromURI('file:///c%3AProgram%20Files/folder/file.txt');
 
     // TODO: почему без ведущего слэша?
-    expect(duri.path).eql('c/Program Files/folder/file.txt');
+    expect(duri.path).eql('c:Program Files/folder/file.txt');
 
-    expect(duri.uri).eql('file:///c/Program%20Files/folder/file.txt');
+    expect(duri.uri).eql('file:///c%3AProgram%20Files/folder/file.txt');
 
     // TODO: даже тут null!
     expect(duri.protocol).eql(null);
