@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.0 (23.06.2021)
+
+* Improve LS to support WebStorm.
+
 ## 1.3.0 (23.06.2021)
 
 * Add tests.
