@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.0 (23.06.2021)
+
+* Add tests.
+
 ## 1.2.0 (23.06.2021)
 
 * Drop usage of entryPoint parameter due to refactored imports in Crafter.
