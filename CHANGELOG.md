@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.0 (24.06.2021)
+
+* Add completion of names of MSON sections.
+
 ## 1.4.0 (23.06.2021)
 
 * Improve LS to support WebStorm.
