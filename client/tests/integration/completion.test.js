@@ -206,6 +206,34 @@ describe('Completion tests', () => {
       await testCompletion(incompleteResourceUri, new vscode.Position(4, 3), ['Request', 'Response']);
     });
   });
+
+  describe('Completes Type Sections', () => {
+    const incompleteResourceUri = helpers.getDocUri('incomplete-type-sections.apib');
+
+    before(async () => {
+      await helpers.activate(incompleteResourceUri);
+    });
+
+    it('Completes inside named declarations', async () => {
+      await testCompletion(incompleteResourceUri, new vscode.Position(7, 6), ['Sample']);
+      await testCompletion(incompleteResourceUri, new vscode.Position(8, 7), ['Default']);
+      await testCompletion(incompleteResourceUri, new vscode.Position(9, 7), ['Items']);
+      await testCompletion(incompleteResourceUri, new vscode.Position(10, 6), ['Members']);
+      await testCompletion(incompleteResourceUri, new vscode.Position(11, 9), ['Properties']);
+    });
+
+    it('Completes inside objects', async () => {
+      await testCompletion(incompleteResourceUri, new vscode.Position(15, 6), ['Sample']);
+      await testCompletion(incompleteResourceUri, new vscode.Position(16, 6), ['Default']);
+      await testCompletion(incompleteResourceUri, new vscode.Position(17, 6), ['Items']);
+      await testCompletion(incompleteResourceUri, new vscode.Position(18, 6), ['Members']);
+      await testCompletion(incompleteResourceUri, new vscode.Position(19, 6), ['Properties']);
+    });
+
+    it('Skips outside named declarations', async () => {
+      await testCompletion(incompleteResourceUri, new vscode.Position(4, 7), ['Data Structures', 'DELETE']);
+    });
+  });
 });
 
 /**
