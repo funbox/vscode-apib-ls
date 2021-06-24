@@ -228,10 +228,11 @@ class CompletionProvider {
   }
 
   getCompletionsFromDataStructures(pos, node, line) {
-    const nodeForPosition = node.content.find(n => positionBelongsToNode(pos, n));
+    const nodeForPositionIndex = node.content.findIndex(n => positionBelongsToNode(pos, n));
+    const nodeForPosition = node.content[nodeForPositionIndex];
 
     if (nodeForPosition) {
-      return this.getCompletionsFromDataStructure(pos, nodeForPosition, line);
+      return this.getCompletionsFromDataStructure(pos, nodeForPosition, line, nodeForPositionIndex);
     }
 
     return [];
@@ -339,7 +340,7 @@ class CompletionProvider {
     return result;
   }
 
-  getCompletionsFromDataStructure(pos, node, line) {
+  getCompletionsFromDataStructure(pos, node, line, nodeIndex) {
     if (node.meta && node.meta.description && positionBelongsToNode(pos, node.meta.description)) return [];
 
     if (node.content) {
@@ -364,7 +365,7 @@ class CompletionProvider {
     return getCompletionResult(lineToComplete, options, this.namedTypes);
 
     function getLineToComplete(signature) {
-      if (isTypeSection(signature)) {
+      if (isTypeSection(signature, nodeIndex)) {
         return [formatLineToComplete(signature), { isTypeSection: true }];
       }
 
@@ -433,7 +434,9 @@ function formatLineToComplete(line) {
   return line.trim().toLocaleLowerCase();
 }
 
-function isTypeSection(signature) {
+function isTypeSection(signature, nodeIndex) {
+  if (nodeIndex === 0) return false;
+
   return typeSections.filter(type => (
     type.toLocaleLowerCase().startsWith(signature.toLocaleLowerCase())
   )).length;
