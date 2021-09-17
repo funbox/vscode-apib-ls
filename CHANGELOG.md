@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.1 (17.09.2021)
+
+* Update repository link.
+
 ## 1.5.0 (24.06.2021)
 
 * Add completion of names of MSON sections.
