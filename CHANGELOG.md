@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.2 (29.09.2021)
+
+* Fix tests run.
+
 ## 1.5.1 (17.09.2021)
 
 * Update repository link.
