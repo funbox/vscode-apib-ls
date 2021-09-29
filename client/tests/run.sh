@@ -1,18 +1,19 @@
-#!/usr/bin/env sh
+#!/bin/bash
+
+set -e
+set -o xtrace
+
 if [[ -n "${CI}" ]]; then
-  export DISPLAY=":99"
-  export LD_LIBRARY_PATH="/usr/lib64/"
-  yum -y install xorg-x11-server-Xvfb && rm -rf /var/cache/yum
+  apt-get update
+  apt-get install -y xvfb libsecret-1-0 iproute2
   Xvfb :99 -screen 0 640x480x8 -nolisten tcp &
+  XVFB_PID=$!
+  export DISPLAY=":99"
 fi
 
 npm test
 
-exitCode=$?
-
 if [[ -n "${CI}" ]]; then
-  pkill Xvfb
+  kill $XVFB_PID
   echo "Xvfb has been stopped"
 fi
-
-exit $exitCode
