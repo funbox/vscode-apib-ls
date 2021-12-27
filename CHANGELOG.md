@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.6.0 (27.12.2021)
+
+* Add Lawyer.
+
 ## 1.5.2 (29.09.2021)
 
 * Fix tests run.
