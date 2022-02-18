@@ -1,5 +1,5 @@
 {
-  "name": "@funbox/vscode-apib-ls-client",
+  "name": "@funboxteam/vscode-apib-ls-client",
   "description": "VSCode part of a language server",
   "version": "1.6.0",
   "engines": {

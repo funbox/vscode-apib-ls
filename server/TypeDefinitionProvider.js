@@ -1,4 +1,4 @@
-const crafter = require('@funbox/crafter');
+const crafter = require('@funboxteam/crafter');
 const {
   get,
   calculateCrafterParams,

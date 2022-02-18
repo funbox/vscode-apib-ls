@@ -1,12 +1,12 @@
 {
-  "name": "@funbox/vscode-apib-ls-server",
+  "name": "@funboxteam/vscode-apib-ls-server",
   "description": "API Blueprint language server",
   "version": "1.6.0",
   "engines": {
     "node": "*"
   },
   "dependencies": {
-    "@funbox/crafter": "3.0.0",
+    "@funboxteam/crafter": "3.0.0",
     "vscode-languageserver": "^6.1.1",
     "vscode-languageserver-textdocument": "^1.0.1"
   },

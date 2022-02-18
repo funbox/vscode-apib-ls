@@ -1,6 +1,6 @@
 const path = require('path');
 const fs = require('fs');
-const crafter = require('@funbox/crafter');
+const crafter = require('@funboxteam/crafter');
 const { CompletionItemKind } = require('vscode-languageserver');
 const {
   get,

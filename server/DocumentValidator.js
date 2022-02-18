@@ -2,7 +2,7 @@ const {
   DiagnosticSeverity,
 } = require('vscode-languageserver');
 
-const crafter = require('@funbox/crafter');
+const crafter = require('@funboxteam/crafter');
 const {
   get,
   belongsToCurrentFile,
