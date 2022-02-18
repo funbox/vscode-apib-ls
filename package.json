@@ -1,6 +1,8 @@
 {
   "name": "vscode-apib-ls",
   "description": "API Blueprint language server",
+  "author": "FunBox LLC <wanted@fun-box.ru> (https://funbox.ru)",
+  "license": "MIT",
   "version": "1.6.0",
   "engines": {
     "vscode": "^1.43.0"
