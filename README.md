@@ -1,38 +1,34 @@
 # API Blueprint Language Server
 
-Пакет позволяет более удобно работать с API Blueprint в редакторах кода и IDE.
+This package allows to enhance developer experience when creating and editing API Blueprint documentation
+in code editors and IDE.
 
-## Возможности
+## Supported capabilities
 
-* подсветка синтаксиса;
-* переход к определению структур данных и Resource Prototypes;
-* хлебные крошки;
-* автодополнение.
+* syntax highlighting;
+* diagnostic messages;
+* breadcrumbs of documentation sections;
+* go to definition implementation for data structures and resource prototypes;
+* completion of types and structure names.
 
-## Работа с многофайловой документацией
+## Editing of a multi-file documentation
 
-Часто проекты содержат не один файл, а несколько. В этом случае можно
-определить структуры данных в одном файле, а использовать их в другом. При
-этом для корректной работы плагину необходимо знать корневой файл от которого
-собирать документацию. В противном случае плагин не сможет понять какие
-структуры данных являются корректными, а какие не определены.
+It is common for API documentation to be split into multiple files. Therefore, a developer can define data structures
+in one file and use them in another file. In that case, the extension requires the root file to know where to start.
+Otherwise, the extension could not realize which data structures are valid and which are not.
 
-По умолчанию, плагин пытается найти файл `doc.apib` в корне проекта и
-использовать его в качестве корня. Если такой файл не найден, то документация
-считается однофайловой.
+By default, the extension assumes that the root file is called `doc.apib` and tries to use it as the entry point.
+If no such file is provided, documentation is considered to be single-file.
 
-Если в проекте в качестве корневого используется файл отличный от `doc.apib`,
-то об этом можно сообщить плагину с помощью настройки:
-
+When the name of the root file differs from `doc.apib`, actual name can be set:
 File -> Prefernces -> Settings -> Extensions -> API Blueprint -> Entry Point
 
-Если по каким-то причинам в файле не подсвечиваются ошибки, то первое, что надо
-проверить — подключается ли данный файл прямо или опосредованно в корень
-проекта.
+If, for some reason, error highlighting is not working, check if the current file is imported directly
+in the project root or indirectly.
 
-## Структура пакета
+## Package structure
 
-```
+```text
 ├── client // Language Client
     └── extension.js // Language Client entry point
 ├── package.json // The extension manifest.
@@ -40,76 +36,67 @@ File -> Prefernces -> Settings -> Extensions -> API Blueprint -> Entry Point
     └── server.js // Language Server entry point
 ```
 
-## Запуск для разработки в VS Code
+## Development guide
 
-* в корневой директории выполнить команду `npm install`;
-* открыть VS Code;
-* переключиться в Debug viewlet;
-* запустить `Launch Client`;
-* открыть проект с APIB документацией или отдельный APIB-файл;
-* запустить `Attach to Server`.
+### Launch in dev mode in VS Code
 
-Вместо отдельных шагов `Launch Client` и `Attach to Server` можно использовать
-команду `Client + Server`, но тогда APIB-файл нужно открывать достаточно
-быстро, иначе команда `Attach to Server` завершится с ошибкой.
+* in the root directory of the extension execute `npm install` command;
+* open VS Code;
+* switch to Debug viewlet;
+* run `Launch Client`;
+* open an APIB project or a standalone APIB file;
+* run `Attach to Server`.
 
-## Отладка
+You can launch client and server at once and select `Client + Server`, but then you need to open required APIB file
+quickly, otherwise, the command `Attach to Server` will fail with an error.
 
-Для отладки сервера можно использовать точки останова и отладочный вывод.
+### Debugging
 
-Для отладочного вывода можно использовать функцию `connection.console.log`. При
-этом результаты вывода необходимо искать в окне `Extension Development Host` в
-панели `Output` - `API Blueprint Language Server`.
+To debug server part of the extension breakpoints and logging techniques are applicable.
 
-## Сборка расширения для VS Code
+For logging use `connection.console.log` function. Output results you can find in the `Extension Development Host`
+window, in the `Output` section switch to `API Blueprint Language Server`.
 
-* в корневой директории выполнить команду `npx vsce package`;
-* полученный пакет передать для установки заинтересованным лицам.
+## Build extension for VS Code
 
-## Работа с LS в WebStorm, PhpStorm и пр.
+* in the root directory run `npx vsce package`;
+* distribute VSIX package to all who interested in it.
 
-### Добавление поддержки Language Server Protocol
+## Language Server in JetBrains IDEs (WebStorm, PhpStorm, etc)
 
-Для работы с LS необходимо установить плагин
-[LSP Support](https://plugins.jetbrains.com/plugin/10209-lsp-support).
+### Add support for Language Server Protocol
 
-Последняя версия плагина (1.6.1) работает крайне не стабильно, а разработка
-приостановлена на неопределённый срок, поэтому рекомендуется установить версию
-[1.6.0](https://github.com/gtache/intellij-lsp/releases/tag/v1.6.0).   
+To activate LS support install plugin [LSP Support](https://plugins.jetbrains.com/plugin/10209-lsp-support).
 
-Установка:
+The last published version (1.6.1) is quite unstable, and development is suspended for a time.
+It is recommended to install version [1.6.0](https://github.com/gtache/intellij-lsp/releases/tag/v1.6.0).
 
-1. Скачать архив
+Installation:
+
+1. Download the archive
    [LSP.zip](https://github.com/gtache/intellij-lsp/releases/download/v1.6.0/LSP.zip).
-2. Перейти в раздел с плагинами в настройках IDE
-   (Preferences → [Plugins](jetbrains://WebStorm/settings?name=Plugins)).
-3. Нажать на иконку шестерёнки и выбрать пункт «Install Plugin from Disk…».
-4. Указать путь до файла LSP.zip.
+2. Go to plugins list in the IDE settings:
+3. Press gear icon (or triple-dot icon) and select «Install Plugin from Disk…».
+4. Set path to LSP.zip.
 
-После успешной установки файл LSP.zip можно удалить.
+After successful installation, LSP.zip can be deleted.
 
-### Настройка плагина LSP Support
+### Setup LSP Support plugin
 
-Настройка плагина производится по пути Preferences → Languages & Frameworks → Language Server Protocol →
+To perform required preparations navigate to Preferences → Languages & Frameworks → Language Server Protocol →
 [Server Definitions](jetbrains://WebStorm/settings?name=Languages+%26+Frameworks--Language+Server+Protocol--Server+Definitions).
 
-Необходимо установить следующие настройки:
+Apply next settings:
 
-1. В выпадающем меню выбрать: `Executable`.
-2. В поле Extension указать: `apib`.
-3. В поле Path указать полный путь до исполняемого файла `node`.
-4. В поле Args первым аргументом указать полный путь до файла
-   [server/server.js](./server/server.js), а вторым, через пробел,
-   добавить текст `--stdio`. Пример:
-   `/full/path/to/vscode-apib-ls/server/server.js --stdio`.
-   
-Так же возможен вариант настройки с глобальной установкой LS в виде исполняемого
-файла.
+1. In the dropdown menu select `Executable`.
+2. In the Extension field type `apib`.
+3. In the Path specify the full path to the executable `node` file.
+4. In the Args field add an argument with the full path to the file [server/server.js](./server/server.js)
+   and the second argument with `--stdio` string. Example: `/full/path/to/vscode-apib-ls/server/server.js --stdio`
 
-Для этого необходимо в директории проекта выполнить команду `npm link`, после
-чего убедиться в том, что из терминала доступен вызов команды `apibserver`.
+You can also setup LS globally as an executable file. To do that run `npm link` in the project directory
+then make sure that shell command `apibserver` is available.
 
-Затем, в настройках плагина, в поле Path изменить значение на `apibserver`,
-а в поле Args на `--stdio`.
+After that, change value in the Path field to `apibserver` and value in the Args field to `--stdio`.
 
-**Важно**. После любых изменений настроек плагина лучше перезагрузить IDE.
+**Important notice**. After any change, it is recommended to restart IDE.
