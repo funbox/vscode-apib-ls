@@ -1,7 +1,17 @@
 # API Blueprint Language Server
 
-This package allows to enhance developer experience when creating and editing API Blueprint documentation
-in code editors and IDE.
+This is a VS Code extension that brings a Language Server support for API Blueprint. It adheres to the [Language Server Protocol](https://github.com/Microsoft/language-server-protocol) and allows to enhance developer experience when creating and editing API Blueprint documentation in code editors and IDEs.
+
+[По-русски](./README.ru.md)
+
+## Rationale
+
+Though API Blueprint is based on Markdown, the semantics totally differs from Markdown.
+Where in Markdown are sections and titles, in API Blueprint they mean data structures and custom types.
+
+It's easy to misspell the name of a custom data type or get lost among a large number of documentation files.
+To help developers with the completion of structure names, navigation between document sections, and other handy stuff,
+we created this implementation of Language Server.
 
 ## Supported capabilities
 
@@ -10,21 +20,6 @@ in code editors and IDE.
 * breadcrumbs of documentation sections;
 * go to definition implementation for data structures and resource prototypes;
 * completion of types and structure names.
-
-## Editing of a multi-file documentation
-
-It is common for API documentation to be split into multiple files. Therefore, a developer can define data structures
-in one file and use them in another file. In that case, the extension requires the root file to know where to start.
-Otherwise, the extension could not realize which data structures are valid and which are not.
-
-By default, the extension assumes that the root file is called `doc.apib` and tries to use it as the entry point.
-If no such file is provided, documentation is considered to be single-file.
-
-When the name of the root file differs from `doc.apib`, actual name can be set:
-File -> Prefernces -> Settings -> Extensions -> API Blueprint -> Entry Point
-
-If, for some reason, error highlighting is not working, check if the current file is imported directly
-in the project root or indirectly.
 
 ## Package structure
 
@@ -36,33 +31,19 @@ in the project root or indirectly.
     └── server.js // Language Server entry point
 ```
 
-## Development guide
+## Installation in VS Code
 
-### Launch in dev mode in VS Code
-
-* in the root directory of the extension execute `npm install` command;
-* open VS Code;
-* switch to Debug viewlet;
-* run `Launch Client`;
-* open an APIB project or a standalone APIB file;
-* run `Attach to Server`.
-
-You can launch client and server at once and select `Client + Server`, but then you need to open required APIB file
-quickly, otherwise, the command `Attach to Server` will fail with an error.
-
-### Debugging
-
-To debug server part of the extension breakpoints and logging techniques are applicable.
-
-For logging use `connection.console.log` function. Output results you can find in the `Extension Development Host`
-window, in the `Output` section switch to `API Blueprint Language Server`.
-
-## Build extension for VS Code
+### Build extension from source
 
 * in the root directory run `npx vsce package`;
+* install packaged extension using the [guide](https://code.visualstudio.com/docs/editor/extension-marketplace#_install-from-a-vsix);
 * distribute VSIX package to all who interested in it.
 
-## Language Server in JetBrains IDEs (WebStorm, PhpStorm, etc)
+### Download from marketplace
+
+VS Code extension is currently unavailable in marketplace.
+
+## Installation in JetBrains IDEs (WebStorm, PhpStorm, etc)
 
 ### Add support for Language Server Protocol
 
@@ -100,3 +81,41 @@ then make sure that shell command `apibserver` is available.
 After that, change value in the Path field to `apibserver` and value in the Args field to `--stdio`.
 
 **Important notice**. After any change, it is recommended to restart IDE.
+
+## Editing of a multi-file documentation
+
+It is common for API documentation to be split into multiple files. Therefore, a developer can define data structures
+in one file and use them in another file. In that case, the extension requires the root file to know where to start.
+Otherwise, the extension could not realize which data structures are valid and which are not.
+
+By default, the extension assumes that the root file is called `doc.apib` and tries to use it as the entry point.
+If no such file is provided, documentation is considered to be single-file.
+
+When the name of the root file differs from `doc.apib`, actual name can be set:
+File -> Preferences -> Settings -> Extensions -> API Blueprint -> Entry Point
+
+If, for some reason, error highlighting is not working, check if the current file is imported directly
+in the project root or indirectly.
+
+## Development guide
+
+### Launch in dev mode in VS Code
+
+* in the root directory of the extension execute `npm install` command;
+* open VS Code;
+* switch to Debug viewlet;
+* run `Launch Client`;
+* open an APIB project or a standalone APIB file;
+* run `Attach to Server`.
+
+You can launch client and server at once and select `Client + Server`, but then you need to open required APIB file
+quickly, otherwise, the command `Attach to Server` will fail with an error.
+
+### Debugging
+
+To debug server part of the extension breakpoints and logging techniques are applicable.
+
+For logging use `connection.console.log` function. Output results you can find in the `Extension Development Host`
+window, in the `Output` section switch to `API Blueprint Language Server`.
+
+[![Sponsored by FunBox](https://funbox.ru/badges/sponsored_by_funbox_centered.svg)](https://funbox.ru)
