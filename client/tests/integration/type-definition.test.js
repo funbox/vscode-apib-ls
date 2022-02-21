@@ -52,7 +52,7 @@ describe('Type Definition tests', () => {
       ]);
     });
 
-    // TODO: Реализовать тесты перехода к Data Structure
+    // TODO: Add tests for "go to Data Structure" capability
   });
 
   describe('Resource', () => {

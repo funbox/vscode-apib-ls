@@ -45,25 +45,25 @@ describe('DocumentURI (win32)', () => {
   it('should create from path', () => {
     const duri = DocumentURI.createFromPath('\\c:Program Files\\folder\\file.txt');
 
-    // TODO: не должен тут path совпадать с uri по формату?
+    // TODO: shouldn't the path format be the same as uri here?
     expect(duri.path).eql('\\c:Program Files\\folder\\file.txt');
 
-    // TODO: точно тут должно быть четыре слэша после file?
+    // TODO: four slashes after "file" look suspicious, is it right?
     expect(duri.uri).eql('file:////c%3AProgram%20Files/folder/file.txt');
 
-    // TODO: почему не 'file'?
+    // TODO: why not 'file'?
     expect(duri.protocol).eql(null);
   });
 
   it('should create from uri', () => {
     const duri = DocumentURI.createFromURI('file:///c%3AProgram%20Files/folder/file.txt');
 
-    // TODO: почему без ведущего слэша?
+    // TODO: why no leading slash?
     expect(duri.path).eql('c:Program Files/folder/file.txt');
 
     expect(duri.uri).eql('file:///c%3AProgram%20Files/folder/file.txt');
 
-    // TODO: даже тут null!
+    // TODO: even here is null!
     expect(duri.protocol).eql(null);
   });
 
@@ -94,7 +94,7 @@ describe('DocumentURI (linux)', () => {
     expect(duri.path).eql('/home/user/file.txt');
     expect(duri.uri).eql('file:///home/user/file.txt');
 
-    // TODO: почему не 'file'?
+    // TODO: why not 'file'?
     expect(duri.protocol).eql(null);
   });
 
@@ -104,7 +104,7 @@ describe('DocumentURI (linux)', () => {
     expect(duri.path).eql('/home/user/file.txt');
     expect(duri.uri).eql('file:///home/user/file.txt');
 
-    // TODO: даже тут null!
+    // TODO: even here is null!
     expect(duri.protocol).eql(null);
   });
 

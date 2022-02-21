@@ -44,8 +44,7 @@ function getRangeForNode(node, documentBuffer) {
   const start = sm[0].content;
   const length = sm[1].content;
 
-
-  // TODO length - 1 баг или нет?
+  // TODO length - 1 bug or not?
   return {
     start: positionAt(start, documentBuffer),
     end: positionAt(start + length - 1, documentBuffer),
