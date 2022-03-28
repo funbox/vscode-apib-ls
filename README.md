@@ -15,29 +15,29 @@ we created this implementation of Language Server.
 
 ## Supported capabilities
 
-* syntax highlighting;
-* diagnostic messages;
-* breadcrumbs of documentation sections;
-* go to definition implementation for data structures and resource prototypes;
-* completion of types and structure names.
+* Syntax highlighting.
+* Diagnostic messages.
+* Breadcrumbs of documentation sections.
+* “Go to definition” implementation for data structures and resource prototypes.
+* Autocomplete for types and structure names.
 
 ## Package structure
 
 ```text
-├── client // Language Client
-    └── extension.js // Language Client entry point
-├── package.json // The extension manifest.
-└── server // Language Server
-    └── server.js // Language Server entry point
+├── client            // Language Client
+    └── extension.js  // Language Client entry point
+├── package.json      // The extension manifest.
+└── server            // Language Server
+    └── server.js     // Language Server entry point
 ```
 
 ## Installation in VS Code
 
 ### Build extension from source
 
-* in the root directory run `npx vsce package`;
-* install packaged extension using the [guide](https://code.visualstudio.com/docs/editor/extension-marketplace#_install-from-a-vsix);
-* distribute VSIX package to all who interested in it.
+* Run `npx vsce package` in the root directory.
+* Install packaged extension using the [official guide](https://code.visualstudio.com/docs/editor/extension-marketplace#_install-from-a-vsix);
+* Distribute VSIX package to all who interested in it.
 
 ### Download from marketplace
 
@@ -57,7 +57,7 @@ Installation:
 1. Download the archive
    [LSP.zip](https://github.com/gtache/intellij-lsp/releases/download/v1.6.0/LSP.zip).
 2. Go to plugins list in the IDE settings:
-3. Press gear icon (or triple-dot icon) and select «Install Plugin from Disk…».
+3. Press gear icon (or triple-dot icon) and select “Install Plugin from Disk...”.
 4. Set path to LSP.zip.
 
 After successful installation, LSP.zip can be deleted.
@@ -80,7 +80,7 @@ then make sure that shell command `apibserver` is available.
 
 After that, change value in the Path field to `apibserver` and value in the Args field to `--stdio`.
 
-**Important notice**. After any change, it is recommended to restart IDE.
+**Important notice.** After any change, it is recommended to restart IDE.
 
 ## Editing of a multi-file documentation
 
@@ -92,7 +92,7 @@ By default, the extension assumes that the root file is called `doc.apib` and tr
 If no such file is provided, documentation is considered to be single-file.
 
 When the name of the root file differs from `doc.apib`, actual name can be set:
-File -> Preferences -> Settings -> Extensions -> API Blueprint -> Entry Point
+File → Preferences → Settings → Extensions → API Blueprint → Entry Point
 
 If, for some reason, error highlighting is not working, check if the current file is imported directly
 in the project root or indirectly.
@@ -101,12 +101,12 @@ in the project root or indirectly.
 
 ### Launch in dev mode in VS Code
 
-* in the root directory of the extension execute `npm install` command;
-* open VS Code;
-* switch to Debug viewlet;
-* run `Launch Client`;
-* open an APIB project or a standalone APIB file;
-* run `Attach to Server`.
+* Run `npm install` in the root directory of the extension.
+* Open VS Code.
+* Switch to Debug viewlet.
+* Run `Launch Client`.
+* Open an APIB project or a standalone APIB file.
+* Run `Attach to Server`.
 
 You can launch client and server at once and select `Client + Server`, but then you need to open required APIB file
 quickly, otherwise, the command `Attach to Server` will fail with an error.

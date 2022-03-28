@@ -15,29 +15,29 @@
 
 ## Поддерживаемые возможности
 
-* подсветка синтаксиса;
-* диагностические сообщения об ошибках парсинга документации;
-* переход к определению структур данных и Resource Prototypes;
-* хлебные крошки;
-* автодополнение.
+* Подсветка синтаксиса.
+* Диагностические сообщения об ошибках парсинга документации.
+* Переход к определению структур данных и Resource Prototypes.
+* Хлебные крошки.
+* Автодополнение.
 
 ## Структура пакета
 
 ```
-├── client // Language Client
-    └── extension.js // Language Client entry point
-├── package.json // The extension manifest.
-└── server // Language Server
-    └── server.js // Language Server entry point
+├── client            // Language Client
+    └── extension.js  // Language Client entry point
+├── package.json      // The extension manifest.
+└── server            // Language Server
+    └── server.js     // Language Server entry point
 ```
 
 ## Установка в VS Code
 
 ## Сборка расширения из исходников
 
-* в корневой директории выполнить команду `npx vsce package`;
-* установить запакованное расширение по [инструкции](https://code.visualstudio.com/docs/editor/extension-marketplace#_install-from-a-vsix);
-* полученный пакет передать для установки другим заинтересованным лицам.
+* Выполнить `npx vsce package` в корневой директории.
+* Установить запакованное расширение по [инструкции](https://code.visualstudio.com/docs/editor/extension-marketplace#_install-from-a-vsix).
+* Полученный пакет передать для установки другим заинтересованным лицам.
 
 ### Загрузка из магазина расширений
 
@@ -72,8 +72,8 @@
 
 Необходимо установить следующие настройки:
 
-1. В выпадающем меню выбрать: `Executable`.
-2. В поле Extension указать: `apib`.
+1. В выпадающем меню выбрать `Executable`.
+2. В поле Extension указать `apib`.
 3. В поле Path указать полный путь до исполняемого файла `node`.
 4. В поле Args первым аргументом указать полный путь до файла
    [server/server.js](./server/server.js), а вторым, через пробел,
@@ -89,7 +89,7 @@
 Затем, в настройках плагина, в поле Path изменить значение на `apibserver`,
 а в поле Args на `--stdio`.
 
-**Важно**. После любых изменений настроек плагина лучше перезагрузить IDE.
+**Важно.** После любых изменений настроек плагина лучше перезагрузить IDE.
 
 ## Работа с многофайловой документацией
 
@@ -106,7 +106,7 @@
 Если в проекте в качестве корневого используется файл отличный от `doc.apib`,
 то об этом можно сообщить плагину с помощью настройки:
 
-File -> Preferences -> Settings -> Extensions -> API Blueprint -> Entry Point
+File → Preferences → Settings → Extensions → API Blueprint → Entry Point
 
 Если по каким-то причинам в файле не подсвечиваются ошибки, то первое, что надо
 проверить — подключается ли данный файл прямо или опосредованно в корень
@@ -116,12 +116,12 @@ File -> Preferences -> Settings -> Extensions -> API Blueprint -> Entry Point
 
 ### Запуск для разработки в VS Code
 
-* в корневой директории выполнить команду `npm install`;
-* открыть VS Code;
-* переключиться в Debug viewlet;
-* запустить `Launch Client`;
-* открыть проект с APIB документацией или отдельный APIB-файл;
-* запустить `Attach to Server`.
+* Выполнить `npm install` в корневой директории.
+* Открыть VS Code.
+* Переключиться в Debug viewlet.
+* Запустить `Launch Client`.
+* Открыть проект с APIB документацией или отдельный APIB-файл.
+* Запустить `Attach to Server`.
 
 Вместо отдельных шагов `Launch Client` и `Attach to Server` можно использовать
 команду `Client + Server`, но тогда APIB-файл нужно открывать достаточно
