@@ -284,7 +284,6 @@ class SymbolsProcessor {
             return;
           }
 
-
           const sm = getSM(item);
           if (!sm) return;
           const itemSM = `${sm[0].content}-${sm[1].content}`;

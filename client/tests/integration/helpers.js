@@ -27,7 +27,7 @@ module.exports = {
       this.doc = await vscode.workspace.openTextDocument(docUri);
       this.editor = await vscode.window.showTextDocument(this.doc);
 
-      await new Promise(resolve => setTimeout(resolve, LS_ACTIVATION_TIMEOUT));
+      await new Promise(resolve => { setTimeout(resolve, LS_ACTIVATION_TIMEOUT); });
     } catch (err) {
       console.error(err);
     }
