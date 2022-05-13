@@ -41,8 +41,8 @@ function readFile(documents, file) {
 
 function getRangeForNode(node, documentBuffer) {
   const sm = getSM(node);
-  const start = sm[0].content;
-  const length = sm[1].content;
+  const start = sm[0];
+  const length = sm[1];
 
   // TODO length - 1 bug or not?
   return {
@@ -69,7 +69,14 @@ function positionAt(offset, buffer) {
 }
 
 function getSM(node) {
-  return get('attributes', 'sourceMap', 'content', 0, 'content', 0, 'content').from(node);
+  const nodeSourceMaps = get('attributes', 'sourceMap', 'content', 0, 'content').from(node);
+
+  if (!nodeSourceMaps) return nodeSourceMaps;
+
+  const sourceMapLength = nodeSourceMaps.reduce((prev, cur) => prev + cur.content[1].content, 0);
+  const sourceMapStart = nodeSourceMaps[0].content[0].content;
+
+  return [sourceMapStart, sourceMapLength];
 }
 
 class DocumentURI {
