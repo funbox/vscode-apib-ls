@@ -12,21 +12,23 @@ describe('Symbols test', () => {
       await helpers.activate(dataStructuresUri);
     });
 
-    xit('Should get Data Structures Symbols', async () => {
+    it('Should get Data Structures Symbols', async () => {
       await testSymbols(dataStructuresUri, [
         {
           name: 'Data Structures',
           kind: vscode.SymbolKind.Namespace,
           location: {
-            range: new vscode.Range(2, 0, 3, 0),
+            range: new vscode.Range(2, 0, 5, 13),
           },
-        },
-        {
-          name: 'User',
-          kind: vscode.SymbolKind.Class,
-          location: {
-            range: new vscode.Range(4, 0, 5, 13),
-          },
+          children: [
+            {
+              name: 'User',
+              kind: vscode.SymbolKind.Class,
+              location: {
+                range: new vscode.Range(4, 0, 5, 13),
+              },
+            },
+          ],
         },
       ]);
     });
@@ -39,7 +41,7 @@ describe('Symbols test', () => {
       await helpers.activate(schemaStructuresUri);
     });
 
-    xit('Should get Schema Structures Symbols', async () => {
+    it('Should get Schema Structures Symbols', async () => {
       await testSymbols(schemaStructuresUri, [
         {
           name: 'Schema Structures',
@@ -52,7 +54,7 @@ describe('Symbols test', () => {
               name: 'Message',
               kind: vscode.SymbolKind.Class,
               location: {
-                range: new vscode.Range(4, 0, 23, 7),
+                range: new vscode.Range(4, 0, 24, 0),
               },
             },
             {
@@ -75,7 +77,7 @@ describe('Symbols test', () => {
       await helpers.activate(resourcesPrototypesUri);
     });
 
-    xit('Should get Resource Prototypes Symbols', async () => {
+    it('Should get Resource Prototypes Symbols', async () => {
       await testSymbols(resourcesPrototypesUri, [
         {
           name: 'Resource Prototypes',
@@ -127,7 +129,7 @@ describe('Symbols test', () => {
       await helpers.activate(resourceGroupUri);
     });
 
-    xit('Should get Resource Group Symbols', async () => {
+    it('Should get Resource Group Symbols', async () => {
       await testSymbols(resourceGroupUri, [
         {
           name: 'Users',
@@ -147,15 +149,17 @@ describe('Symbols test', () => {
                   name: 'GET',
                   kind: vscode.SymbolKind.Module,
                   location: {
-                    range: new vscode.Range(6, 0, 7, 0),
+                    range: new vscode.Range(6, 0, 8, 14),
                   },
-                },
-                {
-                  name: 'Response 200',
-                  kind: vscode.SymbolKind.Method,
-                  location: {
-                    range: new vscode.Range(8, 0, 8, 14),
-                  },
+                  children: [
+                    {
+                      name: 'Response 200',
+                      kind: vscode.SymbolKind.Method,
+                      location: {
+                        range: new vscode.Range(8, 0, 8, 14),
+                      },
+                    },
+                  ],
                 },
               ],
             },
@@ -172,7 +176,7 @@ describe('Symbols test', () => {
       await helpers.activate(actionUri);
     });
 
-    xit('Should get Action Symbols', async () => {
+    it('Should get Action Symbols', async () => {
       await testSymbols(actionUri, [
         {
           name: 'Profile [GET /profile]',
@@ -205,13 +209,12 @@ describe('Symbols test', () => {
 /**
  * @param {vscode.Uri} docUri
  * @param {(vscode.SymbolInformation[]|vscode.DocumentSymbol[])} symbols
+ * @param {(vscode.SymbolInformation[]|vscode.DocumentSymbol[])} actualSymbols
  * @returns {Promise<void>}
  */
-async function testSymbols(docUri, symbols) {
-  const actualSymbolsList = await vscode.commands.executeCommand(
-    'vscode.executeDocumentSymbolProvider',
-    docUri,
-  );
+async function testSymbols(docUri, symbols, actualSymbols) {
+  const actualSymbolsList = actualSymbols || await getActualSymbolsList(docUri);
+  const children = [];
 
   assert.ok(actualSymbolsList.length === symbols.length);
 
@@ -219,5 +222,24 @@ async function testSymbols(docUri, symbols) {
     assert.strictEqual(actualSymbolsList[i].name, symbol.name);
     assert.strictEqual(actualSymbolsList[i].kind, symbol.kind);
     assert.deepStrictEqual(actualSymbolsList[i].location.range, symbol.location.range);
+
+    if (symbol.children && symbol.children.length) {
+      children.push(testSymbols(docUri, symbol.children, actualSymbolsList[i].children));
+    }
   });
+
+  await Promise.all(children);
+}
+
+/**
+ * @param {vscode.Uri} docUri
+ * @returns {(vscode.SymbolInformation[]|vscode.DocumentSymbol[])}
+ */
+async function getActualSymbolsList(docUri) {
+  const actualSymbolsList = await vscode.commands.executeCommand(
+    'vscode.executeDocumentSymbolProvider',
+    docUri,
+  );
+
+  return actualSymbolsList;
 }
