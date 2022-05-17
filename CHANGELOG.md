@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.6.1 (17.05.2022)
+
+* Fix detection of items sections.
+
 ## 1.6.0 (27.12.2021)
 
 * Add Lawyer.
