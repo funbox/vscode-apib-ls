@@ -12,6 +12,11 @@
     "url": "https://github.com/funbox/vscode-apib-ls"
   },
   "publisher": "FunBox",
+  "icon": "logo.png",
+  "galleryBanner": {
+    "color": "#0C52BA",
+    "theme": "dark"
+  },
   "activationEvents": [
     "onLanguage:apib"
   ],
