@@ -135,4 +135,8 @@ File → Preferences → Settings → Extensions → API Blueprint → Entry Poi
 этом результаты вывода необходимо искать в окне `Extension Development Host` в
 панели `Output` - `API Blueprint Language Server`.
 
+## Благодарности
+
+Клёвый логотип для проекта нарисовал [Игорь Гарибальди](https://pandabanda.com/).
+
 [![Sponsored by FunBox](https://funbox.ru/badges/sponsored_by_funbox_centered.svg)](https://funbox.ru)

@@ -118,4 +118,8 @@ To debug server part of the extension breakpoints and logging techniques are app
 For logging use `connection.console.log` function. Output results you can find in the `Extension Development Host`
 window, in the `Output` section switch to `API Blueprint Language Server`.
 
+## Credits
+
+Awesome logo for the project was made by [Igor Garybaldi](https://pandabanda.com/).
+
 [![Sponsored by FunBox](https://funbox.ru/badges/sponsored_by_funbox_centered.svg)](https://funbox.ru)
