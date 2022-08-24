@@ -122,4 +122,4 @@ window, in the `Output` section switch to `API Blueprint Language Server`.
 
 Awesome logo for the project was made by [Igor Garybaldi](https://pandabanda.com/).
 
-[![Sponsored by FunBox](https://funbox.ru/badges/sponsored_by_funbox_centered.svg)](https://funbox.ru)
+[![Sponsored by FunBox](https://funbox.ru/badges/sponsored_by_funbox_centered.png)](https://funbox.ru)

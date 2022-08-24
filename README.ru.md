@@ -139,4 +139,4 @@ File → Preferences → Settings → Extensions → API Blueprint → Entry Poi
 
 Клёвый логотип для проекта нарисовал [Игорь Гарибальди](https://pandabanda.com/).
 
-[![Sponsored by FunBox](https://funbox.ru/badges/sponsored_by_funbox_centered.svg)](https://funbox.ru)
+[![Sponsored by FunBox](https://funbox.ru/badges/sponsored_by_funbox_centered.png)](https://funbox.ru)

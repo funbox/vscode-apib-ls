@@ -567,9 +567,9 @@
     <key>named-type</key>
     <dict>
       <key>begin</key>
-      <string>^(#{1,6}\s+.*)</string>
+      <string>^(#{1,6}\s+(.*))</string>
       <key>end</key>
-      <string>^(?=\s*$)</string>
+      <string>^(?=#{1,6}\s+(?!\2$))</string>
       <key>captures</key>
       <dict>
         <key>1</key>
