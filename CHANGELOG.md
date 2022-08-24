@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.6.2 (24.08.2022)
+
+We've fixed a syntax highlighting bug where the named structure body wasn't highlighted 
+when there was an empty line between the very body and the structure name.
+
+
 ## 1.6.1 (17.05.2022)
 
 * Fix detection of items sections.
