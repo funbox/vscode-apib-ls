@@ -16,8 +16,9 @@ const fileLines = fileContents.split(/\r\n|\r|\n/);
 const scopeToGrammar = {
   'text.html.markdown.source.gfm.apib': getPath('../syntax/APIBlueprint.tmLanguage'),
   'text.html.markdown.source.gfm.mson': getPath('../syntax/MSON.tmLanguage'),
-  'source.js': getPath('../syntax/JavaScript.tmLanguage'),
-  'text.html.basic': getPath('../syntax/html.tmLanguage'),
+  // it seems, vscode has the next files somewhere internally when it runs installed extension. But this script needs them explicitly
+  'source.js': getPath('./JavaScript.tmLanguage'),
+  'text.html.basic': getPath('./html.tmLanguage'),
 };
 
 const wasmBin = fs.readFileSync(getPath('../node_modules/vscode-oniguruma/release/onig.wasm')).buffer;
