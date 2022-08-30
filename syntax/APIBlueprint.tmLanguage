@@ -53,6 +53,10 @@
       <string>#blueprint_named_resource</string>
     </dict>
     <dict>
+      <key>include</key>
+      <string>#blueprint_message</string>
+    </dict>
+    <dict>
       <key>name</key>
       <string>blueprint.request.json</string>
       <key>begin</key>
@@ -581,6 +585,20 @@
         </dict>
       </array>
     </dict>
+    <key>blueprint_message</key>
+    <dict>
+      <key>match</key>
+      <string>^#{1,6}\s+[Mm]essage.*\n?</string>
+      <key>name</key>
+      <string>markup.heading.markdown punctuation.definition.heading.markdown</string>
+      <key>patterns</key>
+      <array>
+        <dict>
+          <key>include</key>
+          <string>#mson-block</string>
+        </dict>
+      </array>
+    </dict>
     <key>http-headers</key>
     <dict>
       <key>begin</key>
@@ -672,7 +690,7 @@
         </dict>
         <dict>
           <key>begin</key>
-          <string>^(\s+)([-+*]) ([Aa]ttributes)(\s*)(\(.+\))?$</string>
+          <string>^(\s*)([-+*]) ([Aa]ttributes)(\s*)(\(.+\))?$</string>
           <key>end</key>
           <string>^(?!\1|\n)|(?=\1[-+*])</string>
           <key>beginCaptures</key>
