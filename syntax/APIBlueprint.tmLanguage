@@ -42,11 +42,11 @@
     </dict>
     <dict>
       <key>include</key>
-      <string>#blueprint_resource</string>
+      <string>#blueprint_named_resource</string>
     </dict>
     <dict>
       <key>include</key>
-      <string>#blueprint_shorthand</string>
+      <string>#blueprint_named_action</string>
     </dict>
     <dict>
       <key>name</key>
@@ -430,7 +430,7 @@
       <key>name</key>
       <string>markup.heading.markdown punctuation.definition.heading.markdown</string>
     </dict>
-    <key>blueprint_resource</key>
+    <key>blueprint_named_resource</key>
     <dict>
       <key>match</key>
       <string>^#{1,6}\s+.*\[(.*)\]\n?</string>
@@ -446,6 +446,21 @@
       </dict>
     </dict>
     <key>blueprint_action</key>
+    <dict>
+      <key>match</key>
+      <string>^#{1,6}\s+(HEAD|GET|PUT|POST|PATCH|DELETE)(.*)\n?</string>
+      <key>name</key>
+      <string>markup.heading.markdown punctuation.definition.heading.markdown</string>
+      <key>captures</key>
+      <dict>
+        <key>2</key>
+        <dict>
+          <key>name</key>
+          <string>meta.link.inet.markdown markup.underline.link.markdown</string>
+        </dict>
+      </dict>
+    </dict>
+    <key>blueprint_named_action</key>
     <dict>
       <key>match</key>
       <string>^#{1,6}\s+.*\[(HEAD|GET|PUT|POST|PATCH|DELETE)(.*)\]\n?</string>
@@ -513,21 +528,6 @@
           <string>text.html.markdown.source.gfm.mson</string>
         </dict>
       </array>
-    </dict>
-    <key>blueprint_shorthand</key>
-    <dict>
-      <key>match</key>
-      <string>^#{1,6}\s+(HEAD|GET|PUT|POST|PATCH|DELETE)(.*)\n?</string>
-      <key>name</key>
-      <string>markup.heading.markdown punctuation.definition.heading.markdown</string>
-      <key>captures</key>
-      <dict>
-        <key>2</key>
-        <dict>
-          <key>name</key>
-          <string>meta.link.inet.markdown markup.underline.link.markdown</string>
-        </dict>
-      </dict>
     </dict>
     <key>http-headers</key>
     <dict>
