@@ -452,7 +452,7 @@
     <key>blueprint_named_resource</key>
     <dict>
       <key>match</key>
-      <string>^#{1,6}\s+.*\[(.*)\]\n?</string>
+      <string>^#{1,6}\s+[^\]\[\(\)]+\s+\[(.*)\]\n?</string>
       <key>name</key>
       <string>markup.heading.markdown punctuation.definition.heading.markdown</string>
       <key>captures</key>
@@ -472,6 +472,11 @@
       <string>markup.heading.markdown punctuation.definition.heading.markdown</string>
       <key>captures</key>
       <dict>
+        <key>1</key>
+        <dict>
+          <key>name</key>
+          <string>markup.quote</string>
+        </dict>
         <key>2</key>
         <dict>
           <key>name</key>
@@ -482,7 +487,7 @@
     <key>blueprint_named_action</key>
     <dict>
       <key>match</key>
-      <string>^#{1,6}\s+.*\[(HEAD|GET|PUT|POST|PATCH|DELETE)(.*)\]\n?</string>
+      <string>^#{1,6}\s+[^\]\[\(\)]+\s+\[(HEAD|GET|PUT|POST|PATCH|DELETE)(.*)\]\n?</string>
       <key>name</key>
       <string>markup.heading.markdown punctuation.definition.heading.markdown</string>
       <key>captures</key>
