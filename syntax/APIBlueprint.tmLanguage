@@ -509,7 +509,7 @@
       <key>begin</key>
       <string>^(#{1,6}\s+[Dd]ata [Ss]tructures)</string>
       <key>end</key>
-      <string>^(?=#{1,6}\s+[Gg]roup.*|#{1,6}\s+.*\[.*\]|#{1,6}\s+[Ii]mport\s+.+|#{1,6}\s+(HEAD|GET|PUT|POST|PATCH|DELETE).*)</string>
+      <string>^(?=#{1,6}\s+[Gg]roup.*|#{1,6}\s+.*\[.*\]|#{1,6}\s+/[^(]*|#{1,6}\s+[Ii]mport\s+.+|#{1,6}\s+(HEAD|GET|PUT|POST|PATCH|DELETE).*)</string>
       <key>captures</key>
       <dict>
         <key>1</key>
