@@ -42,11 +42,15 @@
     </dict>
     <dict>
       <key>include</key>
-      <string>#blueprint_named_resource</string>
+      <string>#blueprint_resource</string>
     </dict>
     <dict>
       <key>include</key>
       <string>#blueprint_named_action</string>
+    </dict>
+    <dict>
+      <key>include</key>
+      <string>#blueprint_named_resource</string>
     </dict>
     <dict>
       <key>name</key>
@@ -429,6 +433,21 @@
       <string>^#{1,6}\s+[Gg]roup.*\n?</string>
       <key>name</key>
       <string>markup.heading.markdown punctuation.definition.heading.markdown</string>
+    </dict>
+    <key>blueprint_resource</key>
+    <dict>
+      <key>match</key>
+      <string>^#{1,6}\s+(/[^(]*)\n?</string>
+      <key>name</key>
+      <string>markup.heading.markdown punctuation.definition.heading.markdown</string>
+      <key>captures</key>
+      <dict>
+        <key>1</key>
+        <dict>
+          <key>name</key>
+          <string>meta.link.inet.markdown markup.underline.link.markdown</string>
+        </dict>
+      </dict>
     </dict>
     <key>blueprint_named_resource</key>
     <dict>
