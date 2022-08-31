@@ -34,6 +34,10 @@
     </dict>
     <dict>
       <key>include</key>
+      <string>#blueprint_schema_structures</string>
+    </dict>
+    <dict>
+      <key>include</key>
       <string>#blueprint_import</string>
     </dict>
     <dict>
@@ -489,7 +493,7 @@
       <key>begin</key>
       <string>^(#{1,6}\s+[Dd]ata [Ss]tructures)</string>
       <key>end</key>
-      <string>^(?=#{1,6}\s+[Gg]roup.*|#{1,6}\s+.*\[.*\]|#{1,6}\s+/[^(]*|#{1,6}\s+[Ii]mport\s+.+|#{1,6}\s+(HEAD|GET|PUT|POST|PATCH|DELETE).*)</string>
+      <string>^(?=#{1,6}\s+[Gg]roup.*|#{1,6}\s+[Ss]chema [Ss]tructures|#{1,6}\s+.*\[.*\]|#{1,6}\s+/[^(]*|#{1,6}\s+[Ii]mport\s+.+|#{1,6}\s+(HEAD|GET|PUT|POST|PATCH|DELETE).*)</string>
       <key>captures</key>
       <dict>
         <key>1</key>
@@ -503,6 +507,28 @@
         <dict>
           <key>include</key>
           <string>#named-type</string>
+        </dict>
+      </array>
+    </dict>
+    <key>blueprint_schema_structures</key>
+    <dict>
+      <key>begin</key>
+      <string>^(#{1,6}\s+[Ss]chema [Ss]tructures)</string>
+      <key>end</key>
+      <string>^(?=#{1,6}\s+[Gg]roup.*|#{1,6}\s+[Dd]ata [Ss]tructures|#{1,6}\s+.*\[.*\]|#{1,6}\s+/[^(]*|#{1,6}\s+[Ii]mport\s+.+|#{1,6}\s+(HEAD|GET|PUT|POST|PATCH|DELETE).*)</string>
+      <key>captures</key>
+      <dict>
+        <key>1</key>
+        <dict>
+          <key>name</key>
+          <string>markup.heading.markdown punctuation.definition.heading.markdown</string>
+        </dict>
+      </dict>
+      <key>patterns</key>
+      <array>
+        <dict>
+          <key>include</key>
+          <string>#schema-type</string>
         </dict>
       </array>
     </dict>
@@ -617,6 +643,32 @@
         <dict>
           <key>include</key>
           <string>text.html.markdown.source.gfm.mson</string>
+        </dict>
+      </array>
+    </dict>
+    <key>schema-type</key>
+    <dict>
+      <key>begin</key>
+      <string>^(#{1,6}\s+(.*))</string>
+      <key>end</key>
+      <string>^(?=#{1,6}\s+(?!\2$))</string>
+      <key>captures</key>
+      <dict>
+        <key>1</key>
+        <dict>
+          <key>name</key>
+          <string>markup.heading.markdown punctuation.definition.heading.markdown</string>
+        </dict>
+      </dict>
+      <key>patterns</key>
+      <array>
+        <dict>
+          <key>include</key>
+          <string>#json-body</string>
+        </dict>
+        <dict>
+          <key>include</key>
+          <string>#json-schema</string>
         </dict>
       </array>
     </dict>
