@@ -535,15 +535,31 @@
     </dict>
     <key>blueprint_message</key>
     <dict>
-      <key>match</key>
-      <string>^#{1,6}\s+[Mm]essage.*\n?</string>
-      <key>name</key>
-      <string>markup.heading.markdown punctuation.definition.heading.markdown</string>
+      <key>begin</key>
+      <string>^(#{1,6}\s+[Mm]essage.*)\n?</string>
+      <key>end</key>
+      <string>^(?=#{1,6}\s)</string>
+      <key>captures</key>
+      <dict>
+        <key>1</key>
+        <dict>
+          <key>name</key>
+          <string>markup.heading.markdown punctuation.definition.heading.markdown</string>
+        </dict>
+      </dict>
       <key>patterns</key>
       <array>
         <dict>
           <key>include</key>
           <string>#mson-block</string>
+        </dict>
+        <dict>
+          <key>include</key>
+          <string>#json-body</string>
+        </dict>
+        <dict>
+          <key>include</key>
+          <string>#json-schema</string>
         </dict>
       </array>
     </dict>
