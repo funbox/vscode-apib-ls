@@ -34,6 +34,10 @@
     </dict>
     <dict>
       <key>include</key>
+      <string>#blueprint_schema_structures</string>
+    </dict>
+    <dict>
+      <key>include</key>
       <string>#blueprint_import</string>
     </dict>
     <dict>
@@ -46,7 +50,15 @@
     </dict>
     <dict>
       <key>include</key>
-      <string>#blueprint_shorthand</string>
+      <string>#blueprint_named_action</string>
+    </dict>
+    <dict>
+      <key>include</key>
+      <string>#blueprint_named_resource</string>
+    </dict>
+    <dict>
+      <key>include</key>
+      <string>#blueprint_message</string>
     </dict>
     <dict>
       <key>name</key>
@@ -89,25 +101,12 @@
           <string>#mson-block</string>
         </dict>
         <dict>
-          <key>begin</key>
-          <string>([-+*]) [Bb]ody</string>
-          <key>end</key>
-          <string>^(?=(?=\S)|(?=\s+\+))</string>
-          <key>beginCaptures</key>
-          <dict>
-            <key>1</key>
-            <dict>
-              <key>name</key>
-              <string>variable.unordered.list.gfm</string>
-            </dict>
-          </dict>
-          <key>patterns</key>
-          <array>
-            <dict>
-              <key>include</key>
-              <string>source.js</string>
-            </dict>
-          </array>
+          <key>include</key>
+          <string>#json-body</string>
+        </dict>
+        <dict>
+          <key>include</key>
+          <string>#json-schema</string>
         </dict>
         <dict>
           <key>include</key>
@@ -156,25 +155,12 @@
           <string>#mson-block</string>
         </dict>
         <dict>
-          <key>begin</key>
-          <string>([-+*]) [Bb]ody</string>
-          <key>end</key>
-          <string>^(?=(?=\S)|(?=\s+\+))</string>
-          <key>beginCaptures</key>
-          <dict>
-            <key>1</key>
-            <dict>
-              <key>name</key>
-              <string>variable.unordered.list.gfm</string>
-            </dict>
-          </dict>
-          <key>patterns</key>
-          <array>
-            <dict>
-              <key>include</key>
-              <string>text.xml</string>
-            </dict>
-          </array>
+          <key>include</key>
+          <string>#xml-body</string>
+        </dict>
+        <dict>
+          <key>include</key>
+          <string>#xml-schema</string>
         </dict>
         <dict>
           <key>include</key>
@@ -269,25 +255,12 @@
           <string>#mson-block</string>
         </dict>
         <dict>
-          <key>begin</key>
-          <string>([-+*]) [Bb]ody</string>
-          <key>end</key>
-          <string>^(?=(?=\S)|(?=\s+\+))</string>
-          <key>beginCaptures</key>
-          <dict>
-            <key>1</key>
-            <dict>
-              <key>name</key>
-              <string>variable.unordered.list.gfm</string>
-            </dict>
-          </dict>
-          <key>patterns</key>
-          <array>
-            <dict>
-              <key>include</key>
-              <string>source.js</string>
-            </dict>
-          </array>
+          <key>include</key>
+          <string>#json-body</string>
+        </dict>
+        <dict>
+          <key>include</key>
+          <string>#json-schema</string>
         </dict>
         <dict>
           <key>include</key>
@@ -340,25 +313,12 @@
           <string>#mson-block</string>
         </dict>
         <dict>
-          <key>begin</key>
-          <string>([-+*]) [Bb]ody</string>
-          <key>end</key>
-          <string>^(?=(?=\S)|(?=\s+\+))</string>
-          <key>beginCaptures</key>
-          <dict>
-            <key>1</key>
-            <dict>
-              <key>name</key>
-              <string>variable.unordered.list.gfm</string>
-            </dict>
-          </dict>
-          <key>patterns</key>
-          <array>
-            <dict>
-              <key>include</key>
-              <string>text.xml</string>
-            </dict>
-          </array>
+          <key>include</key>
+          <string>#xml-body</string>
+        </dict>
+        <dict>
+          <key>include</key>
+          <string>#xml-schema</string>
         </dict>
         <dict>
           <key>include</key>
@@ -426,14 +386,22 @@
     <key>blueprint_group</key>
     <dict>
       <key>match</key>
-      <string>^#{1,6}\s+[Gg]roup.*\n?</string>
+      <string>^#{1,6}\s+[Gg]roup\s+[^(\s]*(\s+\((.+)\))?\n?</string>
       <key>name</key>
       <string>markup.heading.markdown punctuation.definition.heading.markdown</string>
+      <key>captures</key>
+      <dict>
+        <key>2</key>
+        <dict>
+          <key>name</key>
+          <string>entity.name.class</string>
+        </dict>
+      </dict>
     </dict>
     <key>blueprint_resource</key>
     <dict>
       <key>match</key>
-      <string>^#{1,6}\s+.*\[(.*)\]\n?</string>
+      <string>^#{1,6}\s+(/[^(\s]*)(\s+\((.+)\))?\n?</string>
       <key>name</key>
       <string>markup.heading.markdown punctuation.definition.heading.markdown</string>
       <key>captures</key>
@@ -443,12 +411,37 @@
           <key>name</key>
           <string>meta.link.inet.markdown markup.underline.link.markdown</string>
         </dict>
+        <key>3</key>
+        <dict>
+          <key>name</key>
+          <string>entity.name.class</string>
+        </dict>
+      </dict>
+    </dict>
+    <key>blueprint_named_resource</key>
+    <dict>
+      <key>match</key>
+      <string>^#{1,6}\s+[^\]\[\(\)]+\s+\[(.*)\](\s+\((.+)\))?\n?</string>
+      <key>name</key>
+      <string>markup.heading.markdown punctuation.definition.heading.markdown</string>
+      <key>captures</key>
+      <dict>
+        <key>1</key>
+        <dict>
+          <key>name</key>
+          <string>meta.link.inet.markdown markup.underline.link.markdown</string>
+        </dict>
+        <key>3</key>
+        <dict>
+          <key>name</key>
+          <string>entity.name.class</string>
+        </dict>
       </dict>
     </dict>
     <key>blueprint_action</key>
     <dict>
       <key>match</key>
-      <string>^#{1,6}\s+.*\[(HEAD|GET|PUT|POST|PATCH|DELETE)(.*)\]\n?</string>
+      <string>^#{1,6}\s+(HEAD|GET|PUT|POST|PATCH|DELETE)\s*(/[^(\s]*)?(\s+\((.+)\))?\n?</string>
       <key>name</key>
       <string>markup.heading.markdown punctuation.definition.heading.markdown</string>
       <key>captures</key>
@@ -463,6 +456,36 @@
           <key>name</key>
           <string>meta.link.inet.markdown markup.underline.link.markdown</string>
         </dict>
+        <key>4</key>
+        <dict>
+          <key>name</key>
+          <string>entity.name.class</string>
+        </dict>
+      </dict>
+    </dict>
+    <key>blueprint_named_action</key>
+    <dict>
+      <key>match</key>
+      <string>^#{1,6}\s+[^\]\[\(\)]+\s+\[(HEAD|GET|PUT|POST|PATCH|DELETE)(.*)\](\s+\((.+)\))?\n?</string>
+      <key>name</key>
+      <string>markup.heading.markdown punctuation.definition.heading.markdown</string>
+      <key>captures</key>
+      <dict>
+        <key>1</key>
+        <dict>
+          <key>name</key>
+          <string>markup.quote</string>
+        </dict>
+        <key>2</key>
+        <dict>
+          <key>name</key>
+          <string>meta.link.inet.markdown markup.underline.link.markdown</string>
+        </dict>
+        <key>4</key>
+        <dict>
+          <key>name</key>
+          <string>entity.name.class</string>
+        </dict>
       </dict>
     </dict>
     <key>blueprint_data_structures</key>
@@ -470,7 +493,7 @@
       <key>begin</key>
       <string>^(#{1,6}\s+[Dd]ata [Ss]tructures)</string>
       <key>end</key>
-      <string>^(?=#{1,6}\s+[Gg]roup.*|#{1,6}\s+.*\[.*\]|#{1,6}\s+[Ii]mport\s+.+|#{1,6}\s+(HEAD|GET|PUT|POST|PATCH|DELETE).*)</string>
+      <string>^(?=#{1,6}\s+[Gg]roup.*|#{1,6}\s+[Ss]chema [Ss]tructures|#{1,6}\s+.*\[.*\]|#{1,6}\s+/[^(]*|#{1,6}\s+[Ii]mport\s+.+|#{1,6}\s+(HEAD|GET|PUT|POST|PATCH|DELETE).*)</string>
       <key>captures</key>
       <dict>
         <key>1</key>
@@ -484,6 +507,28 @@
         <dict>
           <key>include</key>
           <string>#named-type</string>
+        </dict>
+      </array>
+    </dict>
+    <key>blueprint_schema_structures</key>
+    <dict>
+      <key>begin</key>
+      <string>^(#{1,6}\s+[Ss]chema [Ss]tructures)</string>
+      <key>end</key>
+      <string>^(?=#{1,6}\s+[Gg]roup.*|#{1,6}\s+[Dd]ata [Ss]tructures|#{1,6}\s+.*\[.*\]|#{1,6}\s+/[^(]*|#{1,6}\s+[Ii]mport\s+.+|#{1,6}\s+(HEAD|GET|PUT|POST|PATCH|DELETE).*)</string>
+      <key>captures</key>
+      <dict>
+        <key>1</key>
+        <dict>
+          <key>name</key>
+          <string>markup.heading.markdown punctuation.definition.heading.markdown</string>
+        </dict>
+      </dict>
+      <key>patterns</key>
+      <array>
+        <dict>
+          <key>include</key>
+          <string>#schema-type</string>
         </dict>
       </array>
     </dict>
@@ -514,20 +559,35 @@
         </dict>
       </array>
     </dict>
-    <key>blueprint_shorthand</key>
+    <key>blueprint_message</key>
     <dict>
-      <key>match</key>
-      <string>^#{1,6}\s+(HEAD|GET|PUT|POST|PATCH|DELETE)(.*)\n?</string>
-      <key>name</key>
-      <string>markup.heading.markdown punctuation.definition.heading.markdown</string>
+      <key>begin</key>
+      <string>^(#{1,6}\s+[Mm]essage.*)\n?</string>
+      <key>end</key>
+      <string>^(?=#{1,6}\s)</string>
       <key>captures</key>
       <dict>
-        <key>2</key>
+        <key>1</key>
         <dict>
           <key>name</key>
-          <string>meta.link.inet.markdown markup.underline.link.markdown</string>
+          <string>markup.heading.markdown punctuation.definition.heading.markdown</string>
         </dict>
       </dict>
+      <key>patterns</key>
+      <array>
+        <dict>
+          <key>include</key>
+          <string>#mson-block</string>
+        </dict>
+        <dict>
+          <key>include</key>
+          <string>#json-body</string>
+        </dict>
+        <dict>
+          <key>include</key>
+          <string>#json-schema</string>
+        </dict>
+      </array>
     </dict>
     <key>http-headers</key>
     <dict>
@@ -586,6 +646,32 @@
         </dict>
       </array>
     </dict>
+    <key>schema-type</key>
+    <dict>
+      <key>begin</key>
+      <string>^(#{1,6}\s+(.*))</string>
+      <key>end</key>
+      <string>^(?=#{1,6}\s+(?!\2$))</string>
+      <key>captures</key>
+      <dict>
+        <key>1</key>
+        <dict>
+          <key>name</key>
+          <string>markup.heading.markdown punctuation.definition.heading.markdown</string>
+        </dict>
+      </dict>
+      <key>patterns</key>
+      <array>
+        <dict>
+          <key>include</key>
+          <string>#json-body</string>
+        </dict>
+        <dict>
+          <key>include</key>
+          <string>#json-schema</string>
+        </dict>
+      </array>
+    </dict>
     <key>mson-block</key>
     <dict>
       <key>patterns</key>
@@ -620,7 +706,7 @@
         </dict>
         <dict>
           <key>begin</key>
-          <string>^(\s+)([-+*]) ([Aa]ttributes)(\s*)(\(.+\))?$</string>
+          <string>^(\s*)([-+*]) ([Aa]ttributes)(\s*)(\(.+\))?$</string>
           <key>end</key>
           <string>^(?!\1|\n)|(?=\1[-+*])</string>
           <key>beginCaptures</key>
@@ -669,6 +755,94 @@
           <string>variable.unordered.list.gfm</string>
         </dict>
       </dict>
+    </dict>
+    <key>json-body</key>
+    <dict>
+      <key>begin</key>
+      <string>([-+*]) [Bb]ody</string>
+      <key>end</key>
+      <string>^(?=(?=\S)|(?=\s+\+))</string>
+      <key>beginCaptures</key>
+      <dict>
+        <key>1</key>
+        <dict>
+          <key>name</key>
+          <string>variable.unordered.list.gfm</string>
+        </dict>
+      </dict>
+      <key>patterns</key>
+      <array>
+        <dict>
+          <key>include</key>
+          <string>source.js</string>
+        </dict>
+      </array>
+    </dict>
+    <key>xml-body</key>
+    <dict>
+      <key>begin</key>
+      <string>([-+*]) [Bb]ody</string>
+      <key>end</key>
+      <string>^(?=(?=\S)|(?=\s+\+))</string>
+      <key>beginCaptures</key>
+      <dict>
+        <key>1</key>
+        <dict>
+          <key>name</key>
+          <string>variable.unordered.list.gfm</string>
+        </dict>
+      </dict>
+      <key>patterns</key>
+      <array>
+        <dict>
+          <key>include</key>
+          <string>text.xml</string>
+        </dict>
+      </array>
+    </dict>
+    <key>json-schema</key>
+    <dict>
+      <key>begin</key>
+      <string>([-+*]) [Ss]chema</string>
+      <key>end</key>
+      <string>^(?=(?=\S)|(?=\s+\+))</string>
+      <key>beginCaptures</key>
+      <dict>
+        <key>1</key>
+        <dict>
+          <key>name</key>
+          <string>variable.unordered.list.gfm</string>
+        </dict>
+      </dict>
+      <key>patterns</key>
+      <array>
+        <dict>
+          <key>include</key>
+          <string>source.js</string>
+        </dict>
+      </array>
+    </dict>
+    <key>xml-schema</key>
+    <dict>
+      <key>begin</key>
+      <string>([-+*]) [Ss]chema</string>
+      <key>end</key>
+      <string>^(?=(?=\S)|(?=\s+\+))</string>
+      <key>beginCaptures</key>
+      <dict>
+        <key>1</key>
+        <dict>
+          <key>name</key>
+          <string>variable.unordered.list.gfm</string>
+        </dict>
+      </dict>
+      <key>patterns</key>
+      <array>
+        <dict>
+          <key>include</key>
+          <string>text.xml</string>
+        </dict>
+      </array>
     </dict>
     <!--
 

@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.7.0 (01.09.2022)
+
+Fixed resources URLs highlighting.
+
+Added MSON attrs highlighting.
+
+Improved Schema Structures sections highlighting.
+
+
 ## 1.6.2 (24.08.2022)
 
 We've fixed a syntax highlighting bug where the named structure body wasn't highlighted 
