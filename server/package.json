@@ -1,7 +1,7 @@
 {
   "name": "@funboxteam/vscode-apib-ls-server",
+  "version": "1.7.1",
   "description": "API Blueprint language server",
-  "version": "1.6.1",
   "engines": {
     "node": "*"
   },
