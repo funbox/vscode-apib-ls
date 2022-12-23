@@ -35,7 +35,7 @@
 
 ## Сборка расширения из исходников
 
-* Выполнить `npx vsce package` в корневой директории.
+* Выполнить `npx @vscode/vsce package` в корневой директории.
 * Установить запакованное расширение по [инструкции](https://code.visualstudio.com/docs/editor/extension-marketplace#_install-from-a-vsix).
 * Полученный пакет передать для установки другим заинтересованным лицам.
 

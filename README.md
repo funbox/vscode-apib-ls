@@ -35,7 +35,7 @@ we created this implementation of Language Server.
 
 ### Build extension from source
 
-* Run `npx vsce package` in the root directory.
+* Run `npx @vscode/vsce package` in the root directory.
 * Install packaged extension using the [official guide](https://code.visualstudio.com/docs/editor/extension-marketplace#_install-from-a-vsix);
 * Distribute VSIX package to all who interested in it.
 
