@@ -7,9 +7,10 @@ const {
 } = require('vscode-languageclient');
 
 let client;
+const baseDir = process.env.BASE_DIR || '';
 
 function activate(context) {
-  const serverModule = context.asAbsolutePath(path.join('server', 'server.js'));
+  const serverModule = context.asAbsolutePath(path.join(baseDir, 'server', 'server.js'));
   // The debug options for the server
   // --inspect=6009: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging
   const debugOptions = { execArgv: ['--nolazy', '--inspect=6009'] };
