@@ -6,6 +6,7 @@
     "vscode": "^1.43.0"
   },
   "scripts": {
+    "pretest": "cd .. && npm run esbuild",
     "test": "node ./tests/runTest.js"
   },
   "dependencies": {
