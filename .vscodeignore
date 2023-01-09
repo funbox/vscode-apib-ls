@@ -1,0 +1,13 @@
+# Ignore everything
+**/*
+
+# Whitelist needed files
+
+!logo.png
+!README.md
+!README.ru.md
+!CHANGELOG.md
+!LICENSE
+
+!dist/**/*
+!syntax/*

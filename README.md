@@ -35,7 +35,7 @@ we created this implementation of Language Server.
 
 ### Build extension from source
 
-* Run `npx vsce package` in the root directory.
+* Run `npx @vscode/vsce package` in the root directory.
 * Install packaged extension using the [official guide](https://code.visualstudio.com/docs/editor/extension-marketplace#_install-from-a-vsix);
 * Distribute VSIX package to all who interested in it.
 
@@ -117,6 +117,17 @@ To debug server part of the extension breakpoints and logging techniques are app
 
 For logging use `connection.console.log` function. Output results you can find in the `Extension Development Host`
 window, in the `Output` section switch to `API Blueprint Language Server`.
+
+### Public version bundling
+
+Before publishing the extension, source files need to be bundled (there is one bundle for `client` and one bundle for `server`).
+We use `esbuild` to manage bundling process.
+
+To compile minified bundle (as the one that will be shipped with the published extension), run `npm run esbuild-min` command.
+To compile human-readable bundle, run `npm run esbuild` command.
+
+Besides that, you can check a list of actual files to be published. To print the list, run `npx @vscode/vsce ls`.
+If you already have `@vscode/vsce` installed globally, you can use `vsce ls` and obtain the same result.
 
 ## Credits
 

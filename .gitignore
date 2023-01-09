@@ -48,7 +48,7 @@ Session.vim
 
 # -- Public --
 /public
-/public-sandbox
+/dist
 
 
 # -- Tests --
