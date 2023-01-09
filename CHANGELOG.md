@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.7.2 (09.01.2023)
+
+Set up extension bundling.
+
+
 ## 1.7.1 (07.09.2022)
 
 Updated Crafter to 4.1.0 to fix import directive highlighting when imported file has an error.
