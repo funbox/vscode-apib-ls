@@ -76,7 +76,7 @@
   "scripts": {
     "vscode:prepublish": "npm run clean-dist-dir && npm run esbuild-min",
     "clean-dist-dir": "rm -rf dist/",
-    "esbuild-base": "esbuild ./client/extension.js ./server/server.js --bundle --outdir=dist --define:process.env.BASE_DIR='\"dist\"' --external:vscode --format=cjs --platform=node",
+    "esbuild-base": "esbuild ./client/extension.js ./server/server.js --bundle --outdir=dist --define:process.env.BASE_DIR='\"dist\"' --external:vscode --format=cjs --platform=node --target=es2018",
     "esbuild": "npm run esbuild-base -- --sourcemap",
     "esbuild-min": "npm run esbuild-base -- --minify",
     "postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
