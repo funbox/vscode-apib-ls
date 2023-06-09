@@ -1,6 +1,6 @@
 {
   "name": "vscode-apib-ls",
-  "version": "1.7.2",
+  "version": "2.0.0",
   "description": "API Blueprint language server",
   "author": "FunBox LLC <wanted@fun-box.ru> (https://funbox.ru)",
   "license": "Apache-2.0",
@@ -76,7 +76,7 @@
   "scripts": {
     "vscode:prepublish": "npm run clean-dist-dir && npm run esbuild-min",
     "clean-dist-dir": "rm -rf dist/",
-    "esbuild-base": "esbuild ./client/extension.js ./server/server.js --bundle --outdir=dist --define:process.env.BASE_DIR='\"dist\"' --external:vscode --format=cjs --platform=node",
+    "esbuild-base": "esbuild ./client/extension.js ./server/server.js --bundle --outdir=dist --define:process.env.BASE_DIR='\"dist\"' --external:vscode --format=cjs --platform=node --target=es2018",
     "esbuild": "npm run esbuild-base -- --sourcemap",
     "esbuild-min": "npm run esbuild-base -- --minify",
     "postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
@@ -88,12 +88,9 @@
     "lawyer": "lawyer . ./client ./server"
   },
   "devDependencies": {
-    "@funboxteam/eslint-config": "7.1.0",
+    "@funboxteam/eslint-config": "7.3.0",
     "esbuild": "0.16.12",
     "eslint": "7.32.0",
-    "eslint-plugin-import": "2.25.2",
-    "eslint-plugin-jsx-a11y": "6.2.3",
-    "eslint-plugin-react": "7.27.0",
     "husky": "4.3.8",
     "lint-staged": "10.5.0",
     "vscode-oniguruma": "1.6.2",

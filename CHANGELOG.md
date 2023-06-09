@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0.0 (09.06.2023)
+
+Updated @funboxteam/crafter to 6.0.0, which dropped Node.js 12 support.
+
+So, please be sure you're using Node.js 14 or later.
+
+
 ## 1.7.2 (09.01.2023)
 
 Set up extension bundling.
